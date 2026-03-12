@@ -16,4 +16,4 @@ export const fontFamily = {
     'Consolas',
     'monospace',
   ],
-} as const;
+};
