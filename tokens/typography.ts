@@ -23,6 +23,11 @@ type FontSizeValue =
   | [string, string]
   | [string, Partial<{ lineHeight: string; letterSpacing: string; fontWeight: string | number }>];
 
+// Note: `as const` is intentionally omitted here. Tailwind's fontSize config expects
+// mutable tuples; `as const` produces readonly tuples that TypeScript won't assign to
+// the mutable tuple types in ThemeConfig['fontSize']. The explicit FontSizeValue type
+// enforces correctness without readonly. (fontWeight uses `as const` safely because
+// readonly string literals are assignable to Record<string, string>.)
 export const fontSize: Record<string, FontSizeValue> = {
   'display':      ['1.5rem',    { lineHeight: '1.2' }],
   'heading-lg':   ['1.25rem',   { lineHeight: '1.25' }],
