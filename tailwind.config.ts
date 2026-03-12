@@ -4,6 +4,7 @@ import { fontFamily, fontSize, fontWeight } from './tokens/typography';
 import { spacing } from './tokens/spacing';
 import { boxShadow } from './tokens/shadows';
 import { borderRadius } from './tokens/radii';
+import { semanticPlugin } from './tokens/semantic';
 
 const config: Config = {
   content: [
@@ -22,7 +23,7 @@ const config: Config = {
       borderRadius,
     },
   },
-  plugins: [],
+  plugins: [semanticPlugin],
 };
 
 export default config;
