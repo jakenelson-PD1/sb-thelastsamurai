@@ -46,12 +46,12 @@ export const semanticPlugin = plugin(
         '--color-fg-on-accent': '#ffffff',
 
         // Borders
-        '--color-line':        colors.neutral[800],
+        '--color-line':        colors.neutral[700],
         '--color-line-strong': colors.neutral[600],
         '--color-line-focus':  colors.brand[400],
 
         // Actions
-        '--color-action-primary':       colors.brand[500],
+        '--color-action-primary':       colors.brand[400],
         '--color-action-primary-hover': colors.brand[400],
 
         // Status
