@@ -1,6 +1,10 @@
 import type { Config } from 'tailwindcss';
+import { colors } from './tokens/colors';
+import { fontFamily } from './tokens/typography';
+import { spacing } from './tokens/spacing';
+import { boxShadow } from './tokens/shadows';
+import { borderRadius } from './tokens/radii';
 
-// Token imports wired after Task 4
 const config: Config = {
   content: [
     './components/**/*.{ts,tsx}',
@@ -8,7 +12,13 @@ const config: Config = {
   ],
   darkMode: 'class',
   theme: {
-    extend: {},
+    extend: {
+      colors,
+      fontFamily,
+      spacing,
+      boxShadow,
+      borderRadius,
+    },
   },
   plugins: [],
 };
