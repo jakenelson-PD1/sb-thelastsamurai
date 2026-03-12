@@ -20,7 +20,7 @@ export function Input({ label, error, className, id, ...props }: InputProps) {
           'h-10 w-full rounded border border-line-strong bg-elevated px-3 text-sm text-fg-primary placeholder:text-fg-muted',
           'focus:border-line-focus focus:outline-none focus:ring-2 focus:ring-line-focus/20',
           'disabled:cursor-not-allowed disabled:bg-canvas disabled:text-fg-muted',
-          error && 'border-status-error focus:ring-status-error/20',
+          error && 'border-status-error focus:border-status-error focus:ring-status-error/20',
           className,
         )}
         {...props}
