@@ -1,0 +1,24 @@
+import { clsx } from 'clsx';
+
+export interface MessageTextCircle01IconProps {
+  size?: number;
+  className?: string;
+  'aria-label'?: string;
+}
+
+export function MessageTextCircle01Icon({ size = 20, className, ...props }: MessageTextCircle01IconProps) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 20 20"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={clsx('inline-block', className)}
+      aria-hidden={!props['aria-label']}
+      {...props}
+    >
+      <path d="M6.66633 7.91667H9.99965M6.66633 10.8333H12.4996M10.4163 16.6667C14.3283 16.6667 17.4996 13.4953 17.4996 9.58333C17.4996 5.67132 14.3283 2.5 10.4163 2.5C6.50432 2.5 3.333 5.67132 3.333 9.58333C3.333 10.375 3.46287 11.1363 3.70248 11.8472C3.79264 12.1147 3.83772 12.2484 3.84586 12.3512C3.85389 12.4527 3.84782 12.5238 3.82272 12.6224C3.79729 12.7223 3.74117 12.8263 3.62892 13.034L2.26587 15.557C2.07144 15.9168 1.97422 16.0968 1.99598 16.2357C2.01493 16.3566 2.08612 16.4631 2.19065 16.5268C2.31065 16.6001 2.51408 16.579 2.92096 16.537L7.18847 16.0958C7.31771 16.0825 7.38232 16.0758 7.44122 16.0781C7.49915 16.0803 7.54004 16.0858 7.59653 16.0988C7.65397 16.112 7.72619 16.1398 7.87063 16.1954C8.66065 16.4998 9.51898 16.6667 10.4163 16.6667Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  );
+}
