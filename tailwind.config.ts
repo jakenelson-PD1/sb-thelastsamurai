@@ -1,6 +1,6 @@
 import type { Config } from 'tailwindcss';
 import { colors } from './tokens/colors';
-import { fontFamily } from './tokens/typography';
+import { fontFamily, fontSize, fontWeight } from './tokens/typography';
 import { spacing } from './tokens/spacing';
 import { boxShadow } from './tokens/shadows';
 import { borderRadius } from './tokens/radii';
@@ -15,6 +15,8 @@ const config: Config = {
     extend: {
       colors,
       fontFamily,
+      fontSize,
+      fontWeight,
       spacing,
       boxShadow,
       borderRadius,
