@@ -1,5 +1,7 @@
 export { Modal } from './Modal';
-export type { ModalProps } from './Modal';
+export type { ModalProps, ModalAction } from './Modal';
+export { ActionMenu } from './ActionMenu';
+export type { ActionMenuProps, ActionMenuGroup, ActionMenuItem } from './ActionMenu';
 export { Drawer } from './Drawer';
 export type { DrawerProps } from './Drawer';
 export { Tooltip } from './Tooltip';
