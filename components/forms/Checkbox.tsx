@@ -12,12 +12,12 @@ export function Checkbox({ label, className, id, ...props }: CheckboxProps) {
         type="checkbox"
         id={checkId}
         className={clsx(
-          'h-4 w-4 rounded border-neutral-300 text-brand-500 focus:ring-brand-500/20',
+          'h-4 w-4 rounded border-line-strong text-action-primary focus:ring-line-focus/20',
           className,
         )}
         {...props}
       />
-      {label && <span className="text-sm text-neutral-700">{label}</span>}
+      {label && <span className="text-sm text-fg-secondary">{label}</span>}
     </label>
   );
 }

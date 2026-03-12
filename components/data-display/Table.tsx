@@ -12,9 +12,12 @@ export function Table<T extends Record<string, unknown>>({ columns, data, classN
     <div className={clsx('w-full overflow-x-auto', className)}>
       <table className="w-full text-sm">
         <thead>
-          <tr className="border-b border-neutral-200">
+          <tr className="border-b border-line">
             {columns.map((col) => (
-              <th key={String(col.key)} className="px-4 py-3 text-left font-medium text-neutral-600">
+              <th
+                key={String(col.key)}
+                className="px-4 py-3 text-left font-medium text-fg-secondary"
+              >
                 {col.header}
               </th>
             ))}
@@ -22,9 +25,9 @@ export function Table<T extends Record<string, unknown>>({ columns, data, classN
         </thead>
         <tbody>
           {data.map((row, i) => (
-            <tr key={i} className="border-b border-neutral-100 hover:bg-neutral-50">
+            <tr key={i} className="border-b border-line hover:bg-surface">
               {columns.map((col) => (
-                <td key={String(col.key)} className="px-4 py-3 text-neutral-800">
+                <td key={String(col.key)} className="px-4 py-3 text-fg-primary">
                   {String(row[col.key] ?? '')}
                 </td>
               ))}

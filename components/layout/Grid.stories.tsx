@@ -7,7 +7,7 @@ type Story = StoryObj<typeof Grid>;
 
 export const TwoCol: Story = {
   args: { cols: 2, gap: 4, children: [
-    <div key="a" className="bg-neutral-100 p-4 rounded">Cell A</div>,
-    <div key="b" className="bg-neutral-100 p-4 rounded">Cell B</div>,
+    <div key="a" className="bg-surface p-4 rounded">Cell A</div>,
+    <div key="b" className="bg-surface p-4 rounded">Cell B</div>,
   ]},
 };

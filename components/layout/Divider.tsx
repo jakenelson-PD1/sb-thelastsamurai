@@ -10,7 +10,7 @@ export function Divider({ orientation = 'horizontal', className }: DividerProps)
     <div
       role="separator"
       className={clsx(
-        'bg-neutral-200',
+        'bg-line',
         orientation === 'horizontal' ? 'h-px w-full' : 'h-full w-px',
         className,
       )}

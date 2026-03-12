@@ -8,11 +8,11 @@ export interface SpinnerProps {
 
 const sizeMap = { sm: 'h-4 w-4', md: 'h-6 w-6', lg: 'h-10 w-10' } as const;
 
-export function Spinner({ size = 'md', label = 'Loading\u2026', className }: SpinnerProps) {
+export function Spinner({ size = 'md', label = 'Loading…', className }: SpinnerProps) {
   return (
     <span role="status" aria-label={label} className="inline-flex items-center justify-center">
       <svg
-        className={clsx('animate-spin text-brand-500', sizeMap[size], className)}
+        className={clsx('animate-spin text-action-primary', sizeMap[size], className)}
         fill="none"
         viewBox="0 0 24 24"
       >

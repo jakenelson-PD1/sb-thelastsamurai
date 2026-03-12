@@ -18,11 +18,15 @@ export function Modal({ open, onClose, title, children, className }: ModalProps)
         aria-modal="true"
         aria-labelledby={title ? 'modal-title' : undefined}
         className={clsx(
-          'relative z-10 w-full max-w-md rounded-modal bg-white p-6 shadow-modal',
+          'relative z-10 w-full max-w-md rounded-lg bg-elevated p-6 shadow-modal',
           className,
         )}
       >
-        {title && <h2 id="modal-title" className="mb-4 text-lg font-semibold text-neutral-900">{title}</h2>}
+        {title && (
+          <h2 id="modal-title" className="mb-4 text-lg font-semibold text-fg-primary">
+            {title}
+          </h2>
+        )}
         {children}
       </div>
     </div>

@@ -14,7 +14,7 @@ export const Right: Story = {
       <>
         <Button onClick={() => setOpen(true)}>Open Drawer</Button>
         <Drawer open={open} onClose={() => setOpen(false)} title="Drawer" side="right">
-          <p className="text-sm text-neutral-600">Drawer content.</p>
+          <p className="text-sm text-fg-muted">Drawer content.</p>
         </Drawer>
       </>
     );

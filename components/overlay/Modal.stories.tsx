@@ -14,7 +14,7 @@ export const Default: Story = {
       <>
         <Button onClick={() => setOpen(true)}>Open Modal</Button>
         <Modal open={open} onClose={() => setOpen(false)} title="Modal Title">
-          <p className="text-sm text-neutral-600">Modal content goes here.</p>
+          <p className="text-sm text-fg-muted">Modal content goes here.</p>
         </Modal>
       </>
     );

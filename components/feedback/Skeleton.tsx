@@ -9,7 +9,7 @@ export function Skeleton({ width, height, className, style, ...props }: Skeleton
   return (
     <div
       aria-hidden="true"
-      className={clsx('animate-pulse rounded bg-neutral-200', className)}
+      className={clsx('animate-pulse rounded bg-line-strong', className)}
       style={{ width, height, ...style }}
       {...props}
     />

@@ -20,9 +20,9 @@ export function Radio({ name, options, value, onChange, className }: RadioProps)
             value={opt.value}
             checked={value === opt.value}
             onChange={() => onChange?.(opt.value)}
-            className="h-4 w-4 border-neutral-300 text-brand-500 focus:ring-brand-500/20"
+            className="h-4 w-4 border-line-strong text-action-primary focus:ring-line-focus/20"
           />
-          <span className="text-sm text-neutral-700">{opt.label}</span>
+          <span className="text-sm text-fg-secondary">{opt.label}</span>
         </label>
       ))}
     </fieldset>

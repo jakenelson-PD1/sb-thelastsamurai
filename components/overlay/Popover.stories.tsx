@@ -9,7 +9,7 @@ type Story = StoryObj<typeof Popover>;
 export const Default: Story = {
   render: () => (
     <Popover trigger={<Button variant="secondary">Open Popover</Button>}>
-      <p className="text-sm text-neutral-700">Popover content here.</p>
+      <p className="text-sm text-fg-secondary">Popover content here.</p>
     </Popover>
   ),
 };

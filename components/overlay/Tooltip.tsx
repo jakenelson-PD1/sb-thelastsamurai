@@ -20,7 +20,7 @@ export function Tooltip({ content, children, className }: TooltipProps) {
         <span
           role="tooltip"
           className={clsx(
-            'absolute bottom-full left-1/2 mb-1 -translate-x-1/2 whitespace-nowrap rounded bg-neutral-900 px-2 py-1 text-xs text-white shadow',
+            'absolute bottom-full left-1/2 mb-1 -translate-x-1/2 whitespace-nowrap rounded-lg bg-fg-primary px-2 py-1 text-xs text-canvas shadow',
             className,
           )}
         >

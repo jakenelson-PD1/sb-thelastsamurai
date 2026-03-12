@@ -11,10 +11,10 @@ export function Sidebar({ items, className }: SidebarProps) {
           key={item.href}
           href={item.href}
           className={clsx(
-            'rounded px-3 py-2 text-sm font-medium transition-colors',
+            'rounded-lg py-2 text-sm font-medium transition-colors',
             item.active
-              ? 'bg-brand-50 text-brand-700'
-              : 'text-neutral-600 hover:bg-neutral-100',
+              ? 'border-l-2 border-action-primary bg-surface pl-[calc(0.75rem-2px)] pr-3 text-action-primary'
+              : 'px-3 text-fg-secondary hover:bg-surface',
           )}
           aria-current={item.active ? 'page' : undefined}
         >
