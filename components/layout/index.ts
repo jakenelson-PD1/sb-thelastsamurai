@@ -6,3 +6,5 @@ export { Stack } from './Stack';
 export type { StackProps } from './Stack';
 export { Divider } from './Divider';
 export type { DividerProps } from './Divider';
+export { AppShell } from './AppShell';
+export type { AppShellProps } from './AppShell';
