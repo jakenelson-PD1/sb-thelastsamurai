@@ -14,3 +14,7 @@ export { Panel } from './Panel';
 export type { PanelProps } from './Panel';
 export { ResizeHandle } from './ResizeHandle';
 export type { ResizeHandleProps } from './ResizeHandle';
+export { MasterDetailLayout } from './MasterDetailLayout';
+export type { MasterDetailLayoutProps, AdditivePanel } from './MasterDetailLayout';
+export { ThreeColumnLayout } from './ThreeColumnLayout';
+export type { ThreeColumnLayoutProps } from './ThreeColumnLayout';
