@@ -1,13 +1,13 @@
-import { PanelResizeHandle, PanelResizeHandleProps } from 'react-resizable-panels';
+import { Separator, SeparatorProps } from 'react-resizable-panels';
 import clsx from 'clsx';
 
-export type ResizeHandleProps = Omit<PanelResizeHandleProps, 'className'> & {
+export type ResizeHandleProps = Omit<SeparatorProps, 'className'> & {
   className?: string;
 };
 
 export function ResizeHandle({ className, ...props }: ResizeHandleProps) {
   return (
-    <PanelResizeHandle
+    <Separator
       className={clsx(
         'relative flex w-1 items-center justify-center bg-line',
         'hover:bg-action-primary data-[resize-handle-active]:bg-action-primary',
@@ -21,6 +21,6 @@ export function ResizeHandle({ className, ...props }: ResizeHandleProps) {
         <span className="h-1 w-1 rounded-full bg-fg-muted" />
         <span className="h-1 w-1 rounded-full bg-fg-muted" />
       </div>
-    </PanelResizeHandle>
+    </Separator>
   );
 }

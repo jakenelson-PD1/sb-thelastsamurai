@@ -41,14 +41,12 @@ export function ThreeColumnLayout({
   sidebarMinSize = 12,
   rightPanelDefaultSize = 35,
   rightPanelMinSize = 20,
-  autoSaveId,
   className,
 }: ThreeColumnLayoutProps) {
   return (
     <div className={clsx('flex h-full w-full overflow-hidden', className)}>
       <PanelGroup
         key={rightPanelOpen ? 'open' : 'closed'}
-        autoSaveId={autoSaveId}
       >
         <Panel
           defaultSize={sidebarDefaultSize}

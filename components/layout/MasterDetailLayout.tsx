@@ -37,12 +37,11 @@ export function MasterDetailLayout({
   onClosePanel,
   listDefaultSize = 22,
   listMinSize = 15,
-  autoSaveId,
   className,
 }: MasterDetailLayoutProps) {
   return (
     <div className={clsx('h-full w-full', className)}>
-      <PanelGroup autoSaveId={autoSaveId}>
+      <PanelGroup>
         <Panel defaultSize={listDefaultSize} minSize={listMinSize}>
           {list}
         </Panel>

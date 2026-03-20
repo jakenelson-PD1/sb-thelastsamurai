@@ -6,3 +6,5 @@ export { List } from './List';
 export type { ListProps, ListItem } from './List';
 export { Stat } from './Stat';
 export type { StatProps } from './Stat';
+export { RequestRow } from './RequestRow';
+export type { RequestRowProps, StatusIndicator, MetaItem } from './RequestRow';
