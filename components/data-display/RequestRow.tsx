@@ -1,23 +1,23 @@
 import { clsx } from 'clsx';
+import { iconSize } from '../../tokens/iconSizes';
 import { Avatar } from '../primitives/Avatar';
-import { ActivityIcon } from '../primitives/icons/ActivityIcon';
-import { AlertTriangleIcon } from '../primitives/icons/AlertTriangleIcon';
-import { CheckIcon } from '../primitives/icons/CheckIcon';
-import { XIcon } from '../primitives/icons/XIcon';
+import { Badge } from '../primitives/Badge';
+import { Tooltip } from '../overlay/Tooltip';
+import { renderStatus } from './statusUtils';
 import { PaperclipIcon } from '../primitives/icons/PaperclipIcon';
 import { Flag02Icon } from '../primitives/icons/Flag02Icon';
 import { MessageCircle01Icon } from '../primitives/icons/MessageCircle01Icon';
 import { File02Icon } from '../primitives/icons/File02Icon';
 import { Lock01Icon } from '../primitives/icons/Lock01Icon';
 
-export type StatusIndicator = 'warning' | 'in-progress' | 'rejected' | 'complete' | 'none';
+export type StatusIndicator = 'fulfilled' | 'returned' | 'accepted' | 'outstanding' | 'none';
 
 export type MetaItem =
-  | { type: 'comments';    count: number }
-  | { type: 'documents';   count: number }
-  | { type: 'flag' }
-  | { type: 'assignee';    initials: string; color?: string; locked?: boolean }
-  | { type: 'due-date';    date: string }
+  | { type: 'comments';    count: number; unread?: boolean; dot?: 'unread' | 'attention'; onClick?: () => void }
+  | { type: 'documents';   count: number; unread?: boolean; dot?: 'unread' | 'attention'; onClick?: () => void }
+  | { type: 'flag';                                                                onClick?: () => void }
+  | { type: 'assignee';    initials: string; color?: string; textColor?: string; locked?: boolean; onClick?: () => void }
+  | { type: 'due-date';    date: string;                                           onClick?: () => void }
   | { type: 'e-signature' };
 
 export interface RequestRowProps {
@@ -33,76 +33,40 @@ export interface RequestRowProps {
   className?: string;
 }
 
-// Icons omit aria-label so their internal logic sets aria-hidden="true" automatically.
-function renderStatus(status: StatusIndicator) {
-  if (status === 'warning')     return <AlertTriangleIcon size={16} className="text-status-warning" />;
-  if (status === 'in-progress') return <ActivityIcon      size={16} className="text-action-primary" />;
-  if (status === 'rejected')    return <XIcon             size={16} className="text-status-error" />;
-  if (status === 'complete')    return <CheckIcon         size={16} className="text-status-success" />;
-  return <span aria-hidden="true" className="inline-block h-4 w-4" />;
+const STATUS_TOOLTIP: Record<StatusIndicator, string> = {
+  fulfilled:   'Awaiting review',
+  returned:    'Returned',
+  accepted:    'Accepted',
+  outstanding: 'Outstanding',
+  none:        '',
+};
+
+function statusDot(dot?: 'unread' | 'attention') {
+  if (!dot) return null;
+  return (
+    <span
+      className="absolute -top-1 -right-1 h-2 w-2 rounded-full ring-1 ring-canvas"
+      style={{ backgroundColor: dot === 'unread' ? 'var(--color-dot-unread)' : 'var(--color-dot-attention)' }}
+    />
+  );
 }
 
-// Icons omit aria-label so the icon component's internal logic sets aria-hidden="true".
-function renderMetaItem(item: MetaItem): JSX.Element {
-  switch (item.type) {
-    case 'comments':
-      return (
-        <span key="comments" className={clsx('flex items-center gap-1 text-label-md text-fg-muted', item.count === 0 && 'opacity-40')}>
-          <MessageCircle01Icon size={16} />
-          {item.count}
-        </span>
-      );
+const metaButtonBase = 'relative z-10 inline-flex items-center justify-center py-1 transition-colors hover:bg-recessed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-action-primary';
 
-    case 'documents':
-      return (
-        <span key="documents" className={clsx('flex items-center gap-1 text-label-md text-fg-muted', item.count === 0 && 'opacity-40')}>
-          <File02Icon size={16} />
-          {item.count}
-        </span>
-      );
-
-    case 'flag':
-      return (
-        <span key="flag" className="flex h-6 w-6 items-center justify-center rounded-pill bg-purple-50 text-purple-500">
-          <Flag02Icon size={14} />
-        </span>
-      );
-
-    case 'assignee': {
-      const avatar = (
-        <Avatar
-          size="xs"
-          initials={item.initials}
-          style={item.color ? { backgroundColor: item.color } : undefined}
-        />
-      );
-      return item.locked ? (
-        <span key="assignee" className="relative inline-flex">
-          {avatar}
-          <span className="absolute -bottom-1 -right-1 flex h-4 w-4 items-center justify-center rounded-pill bg-elevated">
-            <Lock01Icon size={10} className="text-fg-muted" />
-          </span>
-        </span>
-      ) : (
-        <span key="assignee">{avatar}</span>
-      );
-    }
-
-    case 'due-date':
-      return (
-        <span key="due-date" className="text-body-md text-fg-primary">
-          {item.date}
-        </span>
-      );
-
-    case 'e-signature':
-      return (
-        <span key="e-signature" className="rounded-pill border border-line bg-surface px-2 py-0.5 text-label-md text-fg-secondary">
-          E-Signature
-        </span>
-      );
-  }
+function metaButton(onClick: (() => void) | undefined, className: string, children: React.ReactNode): JSX.Element {
+  return (
+    <button
+      type="button"
+      onClick={(e) => { e.stopPropagation(); onClick?.(); }}
+      className={clsx(metaButtonBase, className)}
+    >
+      {children}
+    </button>
+  );
 }
+
+// Lookup type: each MetaItem type maps to its specific variant
+type MetaByType = { [K in MetaItem['type']]?: Extract<MetaItem, { type: K }> };
 
 export function RequestRow({
   orderNumber,
@@ -116,6 +80,15 @@ export function RequestRow({
   onClick,
   className,
 }: RequestRowProps) {
+  const statusEl = renderStatus(status, true) as React.ReactElement;
+  const statusTooltipText = STATUS_TOOLTIP[status];
+
+  // Build fixed-column lookup — O(n) where n ≤ 6
+  const metaByType = meta.reduce<MetaByType>((acc, item) => {
+    (acc as Record<string, MetaItem>)[item.type] = item;
+    return acc;
+  }, {});
+
   return (
     <div
       role="button"
@@ -123,37 +96,41 @@ export function RequestRow({
       aria-pressed={selected}
       onClick={onClick}
       onKeyDown={(e) => {
-        if (e.target !== e.currentTarget) return;
         if (e.key === 'Enter') onClick?.();
         if (e.key === ' ') { e.preventDefault(); onClick?.(); }
       }}
       className={clsx(
-        'flex items-center border-l-2 px-4 py-2 min-h-[56px]',
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-action-primary rounded-control',
-        'cursor-pointer select-none',
+        'relative flex items-center gap-3 border-l-2 border-b border-b-line px-3 py-1 min-h-10',
+        'select-none',
+        onClick ? 'cursor-pointer' : '',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-action-primary',
         selected
-          ? 'bg-status-info-surface border-action-primary hover:bg-status-info-surface'
-          : 'bg-canvas border-transparent hover:bg-surface',
+          ? 'bg-row-selected-bg border-l-row-selected-border hover:bg-row-selected-bg'
+          : 'bg-row-bg border-l-transparent hover:bg-row-hover-bg',
         className,
       )}
     >
-      {/* Left zone */}
-      <div className="flex items-center gap-2 w-14 shrink-0">
-        {renderStatus(status)}
-        <span aria-hidden="true" className="text-label-md text-fg-muted font-normal">{orderNumber}</span>
+
+      {/* Left zone — status icon + order number */}
+      <div className="relative z-10 flex items-center gap-3 shrink-0">
+        {statusTooltipText
+          ? <Tooltip content={statusTooltipText}>{statusEl}</Tooltip>
+          : statusEl
+        }
+        <span aria-hidden="true" className="text-body-sm font-bold text-fg-primary">{orderNumber}</span>
       </div>
 
       {/* Main zone */}
-      <div className="flex-1 min-w-0 flex flex-col justify-center gap-0.5">
+      <div className="relative z-10 flex-1 min-w-0 flex flex-col justify-center gap-0">
         {/* Row 1: title + optional attachment */}
-        <div className="flex items-center gap-2 min-w-0">
-          <span className="text-body-md font-medium text-fg-primary truncate flex-1 min-w-0">
+        <div className="flex items-center gap-3 min-w-0 flex-1">
+          <span className="text-body-sm font-medium text-fg-primary truncate shrink min-w-0">
             {title}
           </span>
           {attachmentLabel && (
             <button
               type="button"
-              className="flex items-center gap-1 text-body-md text-action-primary shrink-0 hover:underline"
+              className="flex items-center gap-1 text-label-sm text-fg-link shrink-0 underline hover:no-underline"
               onClick={(e) => { e.stopPropagation(); onAttachmentClick?.(); }}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
@@ -163,7 +140,7 @@ export function RequestRow({
                 }
               }}
             >
-              <PaperclipIcon size={14} />
+              <PaperclipIcon size={iconSize.sm} />
               {attachmentLabel}
             </button>
           )}
@@ -171,13 +148,144 @@ export function RequestRow({
 
         {/* Row 2: description (selected only) */}
         {selected && description && (
-          <p className="text-body-md text-fg-secondary">{description}</p>
+          <p className="text-label-sm text-fg-muted truncate">{description}</p>
         )}
       </div>
 
-      {/* Right zone */}
-      <div className="flex items-center gap-3 shrink-0 pl-4">
-        {meta.map(renderMetaItem)}
+      {/* Right zone — 6 fixed columns, always in the same order
+          E-Sig 88px · Assignee 32px · Due Date 80px · Comments 44px · Documents 44px · Flag 32px
+          Total slot width: 320px + 12px left padding = 332px */}
+      <div className="relative z-10 flex gap-0 items-center shrink-0 pl-3 ml-auto">
+
+        {/* E-Signature — 88px */}
+        <div
+          className="shrink-0 flex items-center justify-center"
+          style={{ width: 88 }}
+          aria-hidden={!metaByType['e-signature'] ? true : undefined}
+        >
+          {metaByType['e-signature'] && (
+            <Badge variant="cerulean">E-Signature</Badge>
+          )}
+        </div>
+
+        {/* Assignee — 32px */}
+        <div
+          className="shrink-0 flex items-center justify-center"
+          style={{ width: 32 }}
+          aria-hidden={!metaByType['assignee'] ? true : undefined}
+        >
+          {metaByType['assignee'] && (() => {
+            const item = metaByType['assignee']!;
+            return (
+              <Tooltip content={`Assignee: ${item.initials}`}>
+                {metaButton(item.onClick, 'rounded-full px-1',
+                  <span className="relative inline-flex">
+                    <Avatar
+                      size="xs"
+                      initials={item.initials}
+                      style={item.color ? { backgroundColor: item.color, color: item.textColor } : undefined}
+                    />
+                    {item.locked && (
+                      <span className="absolute -bottom-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-elevated">
+                        <Lock01Icon size={iconSize.sm} className="text-fg-muted" />
+                      </span>
+                    )}
+                  </span>
+                )}
+              </Tooltip>
+            );
+          })()}
+        </div>
+
+        {/* Due Date — 80px */}
+        <div
+          className="shrink-0 flex items-center justify-center"
+          style={{ width: 80 }}
+          aria-hidden={!metaByType['due-date'] ? true : undefined}
+        >
+          {metaByType['due-date'] && (() => {
+            const item = metaByType['due-date']!;
+            return (
+              <Tooltip content="Due date">
+                {metaButton(item.onClick,
+                  'px-1 rounded-control text-label-md font-medium text-fg-secondary',
+                  <>{item.date}</>
+                )}
+              </Tooltip>
+            );
+          })()}
+        </div>
+
+        {/* Comments — 44px */}
+        <div
+          className="shrink-0 flex items-center justify-center"
+          style={{ width: 44 }}
+          aria-hidden={!metaByType['comments'] ? true : undefined}
+        >
+          {metaByType['comments'] && (() => {
+            const item = metaByType['comments']!;
+            const displayCount = item.count > 99 ? '99+' : item.count;
+            return (
+              <Tooltip content={`${item.count} comment${item.count !== 1 ? 's' : ''}`}>
+                {metaButton(item.onClick,
+                  'gap-1 px-1 rounded-control text-label-md',
+                  <span className="contents" style={item.unread ? { color: 'var(--color-meta-unread)' } : undefined}>
+                    <span className="relative inline-flex">
+                      <MessageCircle01Icon size={iconSize.sm} className={item.unread ? undefined : 'text-fg-muted'} />
+                      {item.dot === 'unread' && statusDot('unread')}
+                    </span>
+                    <span className={item.unread ? undefined : 'text-fg-muted'}>{displayCount}</span>
+                  </span>
+                )}
+              </Tooltip>
+            );
+          })()}
+        </div>
+
+        {/* Documents — 44px */}
+        <div
+          className="shrink-0 flex items-center justify-center"
+          style={{ width: 44 }}
+          aria-hidden={!metaByType['documents'] ? true : undefined}
+        >
+          {metaByType['documents'] && (() => {
+            const item = metaByType['documents']!;
+            const displayCount = item.count > 99 ? '99+' : item.count;
+            return (
+              <Tooltip content={`${item.count} document${item.count !== 1 ? 's' : ''}`}>
+                {metaButton(item.onClick,
+                  'gap-1 px-1 rounded-control text-label-md',
+                  <span className="contents" style={item.unread ? { color: 'var(--color-meta-unread)' } : undefined}>
+                    <span className="relative inline-flex">
+                      <File02Icon size={iconSize.sm} className={item.unread ? undefined : 'text-fg-muted'} />
+                      {statusDot(item.dot)}
+                    </span>
+                    <span className={item.unread ? undefined : 'text-fg-muted'}>{displayCount}</span>
+                  </span>
+                )}
+              </Tooltip>
+            );
+          })()}
+        </div>
+
+        {/* Flag — 32px */}
+        <div
+          className="shrink-0 flex items-center justify-center"
+          style={{ width: 32 }}
+          aria-hidden={!metaByType['flag'] ? true : undefined}
+        >
+          {metaByType['flag'] && (() => {
+            const item = metaByType['flag']!;
+            return (
+              <Tooltip content="High priority">
+                {metaButton(item.onClick, 'rounded-control px-1 text-status-purple-fg',
+                  <Flag02Icon size={iconSize.sm} />
+                )}
+              </Tooltip>
+            );
+          })()}
+        </div>
+
       </div>
     </div>
   );
