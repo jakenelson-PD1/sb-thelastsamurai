@@ -33,7 +33,7 @@ Build six ComponentSets across three navigation concepts — one atomic item com
 | Font | Inter Medium 14px / 20px | same |
 
 ### Layout
-- `layoutMode = HORIZONTAL`, hug width + fixed height
+- `layoutMode = HORIZONTAL`, hug width + hug height (height determined by py-2 padding + 20px line-height text = 36px naturally; no explicit height token)
 - `paddingLeft/Right` → `scale/4` (px-4 = 16px)
 - `paddingTop/Bottom` → `scale/2` (py-2 = 8px)
 - Bottom stroke: 2px, `strokeAlign = OUTSIDE`, color bound per state above
