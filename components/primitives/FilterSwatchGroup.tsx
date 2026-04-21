@@ -78,7 +78,7 @@ export function FilterSwatchGroup({
 
   return (
     <div className={clsx('flex flex-col items-center gap-2', className)}>
-      {hasLabel ? <Card padding="sm">{rows}</Card> : rows}
+      {hasLabel ? <Card padding="xs">{rows}</Card> : rows}
       {hasLabel && (
         <span className="text-label-md text-fg-muted text-center">{label}</span>
       )}
