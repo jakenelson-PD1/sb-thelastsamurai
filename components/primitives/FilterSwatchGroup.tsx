@@ -13,8 +13,14 @@ export interface FilterSwatchGroupSwatch {
 }
 
 export interface FilterSwatchGroupProps {
-  /** Category label shown beneath the cluster. Omit (or pass empty) to hide. */
+  /** Category label shown alongside the cluster. Omit (or pass empty) to hide. */
   label?: string;
+  /**
+   * Where the label sits relative to the swatches.
+   * - `bottom` (default): label below a card-wrapped cluster, centered.
+   * - `left`: label to the left of bare swatches, vertically centered.
+   */
+  labelPosition?: 'bottom' | 'left';
   swatches: FilterSwatchGroupSwatch[];
   /** Applies to every swatch in the group */
   size?: 'sm' | 'md';
@@ -35,6 +41,7 @@ function splitRows<T>(swatches: T[]): [T[], T[]] {
 
 export function FilterSwatchGroup({
   label,
+  labelPosition = 'bottom',
   swatches,
   size = 'sm',
   className,
@@ -75,6 +82,17 @@ export function FilterSwatchGroup({
       )}
     </div>
   );
+
+  if (labelPosition === 'left') {
+    return (
+      <div className={clsx('flex flex-row items-center gap-2', className)}>
+        {hasLabel && (
+          <span className="text-label-md text-fg-muted">{label}</span>
+        )}
+        {rows}
+      </div>
+    );
+  }
 
   return (
     <div className={clsx('flex flex-col items-center gap-2', className)}>

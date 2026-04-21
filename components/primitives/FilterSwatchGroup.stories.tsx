@@ -39,11 +39,26 @@ export const Default: Story = {
 
 // ─── Without label ───────────────────────────────────────────────────────────
 // `label` is optional — omit it to render bare swatches (no card wrapper,
-// no label). With a label, the cluster is wrapped in a card (bg + border +
-// rounded corners + padding). Mirrors the `ShowLabel` BOOLEAN property on
-// the Figma FilterSwatchGroup ComponentSet.
+// no label). With a label and the default `labelPosition="bottom"`, the
+// cluster is wrapped in a card (bg + rounded corners + shadow + 4px
+// padding). Mirrors the `ShowLabel` BOOLEAN property on the Figma
+// FilterSwatchGroup ComponentSet.
 export const WithoutLabel: Story = {
   render: () => <FilterSwatchGroup swatches={STATUS_4} />,
+};
+
+// ─── Label to the left of the swatches ──────────────────────────────────────
+// Horizontal layout — label sits to the left, bare swatches to the right,
+// vertically centered. No card wrapper in this orientation. Use for inline
+// filter-bar patterns like "Filters: [tiles]".
+export const LabelLeft: Story = {
+  render: () => (
+    <FilterSwatchGroup
+      label="Filters:"
+      labelPosition="left"
+      swatches={STATUS_4}
+    />
+  ),
 };
 
 export const TwoRows: Story = {
