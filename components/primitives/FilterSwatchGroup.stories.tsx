@@ -37,6 +37,15 @@ export const Default: Story = {
   render: () => <FilterSwatchGroup label="Status" swatches={STATUS_4} />,
 };
 
+// ─── Without label ───────────────────────────────────────────────────────────
+// `label` is optional — omit it to render bare swatches (no card wrapper,
+// no label). With a label, the cluster is wrapped in a card (bg + border +
+// rounded corners + padding). Mirrors the `ShowLabel` BOOLEAN property on
+// the Figma FilterSwatchGroup ComponentSet.
+export const WithoutLabel: Story = {
+  render: () => <FilterSwatchGroup swatches={STATUS_4} />,
+};
+
 export const TwoRows: Story = {
   render: () => (
     <FilterSwatchGroup label="Priority palette" swatches={FULL_PALETTE_10} />

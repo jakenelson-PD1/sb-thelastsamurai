@@ -12,8 +12,8 @@ export interface FilterSwatchGroupSwatch {
 }
 
 export interface FilterSwatchGroupProps {
-  /** Category label shown beneath the cluster */
-  label: string;
+  /** Category label shown beneath the cluster. Omit (or pass empty) to hide. */
+  label?: string;
   swatches: FilterSwatchGroupSwatch[];
   /** Applies to every swatch in the group */
   size?: 'sm' | 'md';
@@ -40,9 +40,16 @@ export function FilterSwatchGroup({
 }: FilterSwatchGroupProps) {
   const [row1, row2] = splitRows(swatches);
 
+  const hasLabel = Boolean(label);
+
   return (
     <div className={clsx('flex flex-col items-center gap-2', className)}>
-      <div className="flex flex-col gap-2">
+      <div
+        className={clsx(
+          'flex flex-col gap-2',
+          hasLabel && 'rounded-card border border-line bg-elevated p-3',
+        )}
+      >
         <div className="flex gap-2">
           {row1.map((s, i) => (
             <FilterSwatch
@@ -72,7 +79,9 @@ export function FilterSwatchGroup({
           </div>
         )}
       </div>
-      <span className="text-label-md text-fg-muted text-center">{label}</span>
+      {hasLabel && (
+        <span className="text-label-md text-fg-muted text-center">{label}</span>
+      )}
     </div>
   );
 }
