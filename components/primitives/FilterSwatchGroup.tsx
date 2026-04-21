@@ -1,5 +1,6 @@
 import { clsx } from 'clsx';
 import { FilterSwatch } from './FilterSwatch';
+import { Card } from '../data-display/Card';
 
 export interface FilterSwatchGroupSwatch {
   /** Color value — use a value from the design system palette */
@@ -42,18 +43,26 @@ export function FilterSwatchGroup({
 
   const hasLabel = Boolean(label);
 
-  return (
-    <div className={clsx('flex flex-col items-center gap-2', className)}>
-      <div
-        className={clsx(
-          'flex flex-col gap-2',
-          hasLabel && 'rounded-card border border-line bg-elevated p-3',
-        )}
-      >
+  const rows = (
+    <div className="flex flex-col gap-2">
+      <div className="flex gap-2">
+        {row1.map((s, i) => (
+          <FilterSwatch
+            key={`r1-${i}`}
+            color={s.color}
+            active={s.active}
+            highPriority={s.highPriority}
+            onClick={s.onClick}
+            label={s.label}
+            size={size}
+          />
+        ))}
+      </div>
+      {row2.length > 0 && (
         <div className="flex gap-2">
-          {row1.map((s, i) => (
+          {row2.map((s, i) => (
             <FilterSwatch
-              key={`r1-${i}`}
+              key={`r2-${i}`}
               color={s.color}
               active={s.active}
               highPriority={s.highPriority}
@@ -63,22 +72,13 @@ export function FilterSwatchGroup({
             />
           ))}
         </div>
-        {row2.length > 0 && (
-          <div className="flex gap-2">
-            {row2.map((s, i) => (
-              <FilterSwatch
-                key={`r2-${i}`}
-                color={s.color}
-                active={s.active}
-                highPriority={s.highPriority}
-                onClick={s.onClick}
-                label={s.label}
-                size={size}
-              />
-            ))}
-          </div>
-        )}
-      </div>
+      )}
+    </div>
+  );
+
+  return (
+    <div className={clsx('flex flex-col items-center gap-2', className)}>
+      {hasLabel ? <Card padding="sm">{rows}</Card> : rows}
       {hasLabel && (
         <span className="text-label-md text-fg-muted text-center">{label}</span>
       )}
