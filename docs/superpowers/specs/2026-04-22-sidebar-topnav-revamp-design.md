@@ -15,7 +15,7 @@ One compositional Sidebar shell that covers both the current simple nav-list use
 
 **Slot-based compound component.** `Sidebar` becomes an outer shell that renders children freely. Named sub-components (`SidebarHeader`, `SidebarToolbar`, `SidebarSection`, `SidebarRow`, `SidebarFilterChip`, `SidebarStatusChip`) compose inside it. Consumers assemble their navigator from these primitives — same pattern as `DetailPanel` / `ListPanel` / `PanelHeader` already use in the layout layer.
 
-**Theme as a variant axis.** `theme: 'dark' | 'light'`, default `'dark'` (matches production). The prop sets `data-theme` on the Sidebar root; CSS scopes semantic-token overrides accordingly. No component reads the prop for its own styles — everything binds to `nav-*` semantic tokens that flip automatically under the theme selector. In Figma the same `Theme = Dark | Light` axis exists on every new ComponentSet and is wired to the Semantic variable collection's mode switch.
+**Theme as a variant axis.** `theme: 'dark' | 'light'`, default `'dark'` (matches production). The prop sets `data-theme` on the Sidebar root; CSS scopes semantic-token overrides accordingly. No component reads the prop for its own styles — everything binds to `sidenav-*` semantic tokens that flip automatically under the theme selector. In Figma the same `Theme = Dark | Light` axis exists on every new ComponentSet and is wired to the Semantic variable collection's mode switch.
 
 **Rule 6 compliance.** No new primitives are forked. Status chips, filter chips, overflow menus, hover actions, and accordion chevrons all compose existing components (`Badge`, `IconButton`, `Button`, `ActionMenu`, `Dropdown`, icons from the Icons page). In Figma everything is a `createInstance()` of a canonical ComponentSet.
 
@@ -42,7 +42,7 @@ export interface SidebarProps {
 }
 ```
 
-- Outer container: `flex flex-col h-full bg-nav-surface`
+- Outer container: `flex flex-col h-full bg-sidenav-surface`
 - Sets `data-theme={theme}` on the root element for CSS token scoping
 - `role="navigation"` with `aria-label={ariaLabel ?? 'Sidebar'}`
 - No internal structure beyond the flex column — children (Header / Toolbar / Body / Footer) are laid out in order
@@ -61,12 +61,12 @@ export interface SidebarHeaderProps {
 }
 ```
 
-- Layout: `flex items-center gap-2 px-3 py-3 border-b border-nav-border`
+- Layout: `flex items-center gap-2 px-3 py-3 border-b border-sidenav-border`
 - Back caret (when `backHref` or `onBack` provided): `IconButton` with `ChevronLeftIcon`, aria-label "Back"
-- Icon badge: `h-7 w-7 rounded-card bg-nav-surface-hover flex items-center justify-center shrink-0`
+- Icon badge: `h-7 w-7 rounded-card bg-sidenav-surface-hover flex items-center justify-center shrink-0`
 - Title column: `flex-1 min-w-0`
-  - title: `text-body-md font-semibold text-nav-fg-primary truncate`
-  - subtitle: `text-label-sm text-nav-fg-muted truncate`
+  - title: `text-body-md font-semibold text-sidenav-fg-primary truncate`
+  - subtitle: `text-label-sm text-sidenav-fg-muted truncate`
 - Actions slot: `flex items-center gap-1 shrink-0`
 
 ### `SidebarToolbar`
@@ -78,7 +78,7 @@ export interface SidebarToolbarProps {
 }
 ```
 
-- Passthrough container: `flex flex-wrap gap-2 px-3 py-2 border-b border-nav-border`
+- Passthrough container: `flex flex-wrap gap-2 px-3 py-2 border-b border-sidenav-border`
 - Typically holds a grid of `SidebarFilterChip`s, but accepts any content
 
 ### `SidebarFilterChip`
@@ -96,7 +96,7 @@ export interface SidebarFilterChipProps {
 ```
 
 - Shape: colored dot + label (+ optional ` · count`) + optional chevron
-- Inactive: `bg-transparent text-nav-fg-secondary`; active: `bg-nav-surface-hover text-nav-fg-primary`
+- Inactive: `bg-transparent text-sidenav-fg-secondary`; active: `bg-sidenav-surface-hover text-sidenav-fg-primary`
 - Two click zones when `subMenu` is provided:
   - Click on chip body → `onToggle()`
   - Click on chevron (rendered inline as its own `<button>`, not via `Dropdown`'s built-in chevron slot, so the two click targets stay separable) → opens `subMenu`
@@ -120,10 +120,10 @@ export interface SidebarSectionProps {
 ```
 
 - Header row: `flex items-center gap-1.5 px-3 py-1.5 cursor-pointer group rounded-control`
-  - Chevron: `ChevronDownIcon`, rotated `-90deg` when closed, `text-nav-fg-muted shrink-0 transition-transform`
+  - Chevron: `ChevronDownIcon`, rotated `-90deg` when closed, `text-sidenav-fg-muted shrink-0 transition-transform`
   - Icon (optional): `shrink-0`
-  - Title: `flex-1 text-label-md font-semibold text-nav-fg-secondary truncate`
-  - Count: `text-label-sm text-nav-fg-muted shrink-0` (plain, not a Badge)
+  - Title: `flex-1 text-label-md font-semibold text-sidenav-fg-secondary truncate`
+  - Count: `text-label-sm text-sidenav-fg-muted shrink-0` (plain, not a Badge)
   - Actions: `opacity-0 group-hover:opacity-100 transition-opacity`
 - Body: wrapped in a div with `max-height` + opacity transition for collapse/expand
 - Nesting allowed — sections render sections
@@ -164,12 +164,12 @@ export interface SidebarRowProps {
 - Container: `flex flex-col gap-0.5 px-3 py-2 rounded-control group`, `role="button" tabIndex={0}`
 - Primary row: `flex items-center gap-2`
   - leading (shrink-0)
-  - index (shrink-0, `text-label-sm text-nav-fg-muted w-5 text-right`) — only when `index` provided
-  - title: `flex-1 min-w-0 text-body-sm font-medium text-nav-fg-primary truncate`
+  - index (shrink-0, `text-label-sm text-sidenav-fg-muted w-5 text-right`) — only when `index` provided
+  - title: `flex-1 min-w-0 text-body-sm font-medium text-sidenav-fg-primary truncate`
   - hover-action cluster: `flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity`
   - trailing (shrink-0) — typically a Badge
   - overflow menu trigger: `shrink-0` (always visible per scope decision)
-- Subtitle row (only when `subtitle` provided): `ml-[calc(leading-width+gap)] text-label-sm text-nav-fg-muted truncate`
+- Subtitle row (only when `subtitle` provided): `ml-[calc(leading-width+gap)] text-label-sm text-sidenav-fg-muted truncate`
 
 **Click-target split**
 
@@ -189,9 +189,9 @@ Implementation: sub-elements are real `<button>`s that call `e.stopPropagation()
 
 | State | Dark | Light |
 |---|---|---|
-| Default | `bg-transparent text-nav-fg-secondary` | same token names; CSS flips via `data-theme` |
-| Hover | `bg-nav-surface-hover` + reveal hover-actions | same |
-| Active | `bg-nav-surface-elevated` + 2px `border-l-action-primary` + `text-nav-fg-primary` | same |
+| Default | `bg-transparent text-sidenav-fg-secondary` | same token names; CSS flips via `data-theme` |
+| Hover | `bg-sidenav-surface-hover` + reveal hover-actions | same |
+| Active | `bg-sidenav-surface-elevated` + 2px `border-l-action-primary` + `text-sidenav-fg-primary` | same |
 | Focus-visible | `ring-2 ring-action-primary` on whichever element has focus | same |
 | Disabled | `opacity-40 pointer-events-none` | same |
 
@@ -220,30 +220,30 @@ export interface SidebarStatusChipProps {
 
 ### `Sidebar.Footer` (optional)
 
-A plain passthrough container `px-3 py-2 border-t border-nav-border`. No dedicated export; just a convention documented in stories. If it turns out consumers want a typed wrapper we add one in a follow-up — YAGNI for now.
+A plain passthrough container `px-3 py-2 border-t border-sidenav-border`. No dedicated export; just a convention documented in stories. If it turns out consumers want a typed wrapper we add one in a follow-up — YAGNI for now.
 
 ---
 
-## New semantic tokens (nav-* namespace)
+## New semantic tokens (sidenav-* namespace)
 
 Added to the Semantic collection in both the `last-samurai` Tailwind/CSS layer and Figma variable collection. Both modes bound.
 
 | Token | Purpose | Light mode | Dark mode |
 |---|---|---|---|
-| `nav-surface` | Sidebar outer background | existing `canvas` | new dark gray (~`#1a1d24`) |
-| `nav-surface-hover` | Row / section hover background | existing `surface` | ~`rgba(255,255,255,0.05)` equivalent |
-| `nav-surface-elevated` | Active row background | existing `surface` | ~`rgba(255,255,255,0.10)` equivalent |
-| `nav-border` | Internal dividers (header, toolbar) | existing `line` | dark-theme divider gray |
-| `nav-fg-primary` | Titles | existing `fg-primary` | near-white |
-| `nav-fg-secondary` | Subtitle / section headings | existing `fg-secondary` | warm gray |
-| `nav-fg-muted` | Counts, chevrons, supplementary text | existing `fg-muted` | cool gray |
+| `sidenav-surface` | Sidebar outer background | existing `canvas` | new dark gray (~`#1a1d24`) |
+| `sidenav-surface-hover` | Row / section hover background | existing `surface` | ~`rgba(255,255,255,0.05)` equivalent |
+| `sidenav-surface-elevated` | Active row background | existing `surface` | ~`rgba(255,255,255,0.10)` equivalent |
+| `sidenav-border` | Internal dividers (header, toolbar) | existing `line` | dark-theme divider gray |
+| `sidenav-fg-primary` | Titles | existing `fg-primary` | near-white |
+| `sidenav-fg-secondary` | Subtitle / section headings | existing `fg-secondary` | warm gray |
+| `sidenav-fg-muted` | Counts, chevrons, supplementary text | existing `fg-muted` | cool gray |
 
 **Why a dedicated `nav-*` namespace.** Sidebar chrome uses dark-theme-on-light-app-surface treatments that don't map onto general-purpose surface tokens. The existing `nav-active-bg` / `nav-hover-bg` / `nav-text` tokens used by TopNav already establish this pattern — we're extending it.
 
 **Dark-mode color derivation.** Exact hex values are derived from the production screenshot during the implementation phase (eyedropper on screenshot, tweaked against the rest of the palette). Acceptance criteria:
 
 - Each derived color is within ΔE00 ≤ 3 of the corresponding pixel on the production screenshot (perceptual match)
-- The resulting palette passes WCAG AA contrast against `nav-fg-primary` / `nav-fg-secondary` / `nav-fg-muted` on every surface token (`nav-surface`, `nav-surface-hover`, `nav-surface-elevated`)
+- The resulting palette passes WCAG AA contrast against `sidenav-fg-primary` / `sidenav-fg-secondary` / `sidenav-fg-muted` on every surface token (`sidenav-surface`, `sidenav-surface-hover`, `sidenav-surface-elevated`)
 - Values are committed to the Semantic collection (both Tailwind/CSS source and Figma variables) in the same task that introduces the tokens
 
 ---
@@ -363,11 +363,11 @@ No Jest/Vitest tests added — matches the rest of `components/`. Visual coverag
 - `components/navigation/Sidebar.tsx` — full rewrite to compound shell
 - `components/navigation/Sidebar.stories.tsx` — full rewrite to new stories list above
 - `components/navigation/index.ts` — exports updated
-- Semantic token collection (Tailwind/CSS source of truth) — 7 new `nav-*` tokens with dark + light bindings
+- Semantic token collection (Tailwind/CSS source of truth) — 7 new `sidenav-*` tokens with dark + light bindings
 
 ### Figma (file `ZP0lSeT5Nwm1lpWI79qIaf`)
 
-- New Semantic variables: the 7 `nav-*` tokens with both Dark and Light mode values
+- New Semantic variables: the 7 `sidenav-*` tokens with both Dark and Light mode values
 - New ComponentSets under the NAVIGATION page: `Sidebar`, `SidebarHeader`, `SidebarToolbar`, `SidebarFilterChip`, `SidebarSection`, `SidebarRow`, `SidebarStatusChip`
 - Existing TopNav ComponentSet: content rebuild (5 items + icons)
 
@@ -375,6 +375,6 @@ No Jest/Vitest tests added — matches the rest of `components/`. Visual coverag
 
 ## Open questions deferred to implementation plan
 
-- Exact pixel values for the dark-mode `nav-*` color tokens (derived from production screenshot per the acceptance criteria in the "New semantic tokens" section above)
+- Exact pixel values for the dark-mode `sidenav-*` color tokens (derived from production screenshot per the acceptance criteria in the "New semantic tokens" section above)
 - Whether `SidebarToolbar` gets a typed `Sidebar.Toolbar` re-export or stays as a top-level import (stylistic — pick during plan writing based on how the rest of the compound APIs are structured in this codebase)
 - Whether the collapse animation on `SidebarSection` uses CSS `max-height` transitions or JS-measured height (pick during implementation; prefer pure CSS if it works cleanly)
