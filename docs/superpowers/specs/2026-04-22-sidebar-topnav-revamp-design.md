@@ -36,6 +36,7 @@ One compositional Sidebar shell that covers both the current simple nav-list use
 export interface SidebarProps {
   theme?: 'dark' | 'light';        // default 'dark'
   width?: number | string;          // default 320
+  ariaLabel?: string;               // default 'Sidebar'
   className?: string;
   children: React.ReactNode;
 }
@@ -43,7 +44,7 @@ export interface SidebarProps {
 
 - Outer container: `flex flex-col h-full bg-nav-surface`
 - Sets `data-theme={theme}` on the root element for CSS token scoping
-- `role="navigation"` with `aria-label` (overridable via prop if needed)
+- `role="navigation"` with `aria-label={ariaLabel ?? 'Sidebar'}`
 - No internal structure beyond the flex column — children (Header / Toolbar / Body / Footer) are laid out in order
 
 ### `SidebarHeader`
@@ -98,7 +99,8 @@ export interface SidebarFilterChipProps {
 - Inactive: `bg-transparent text-nav-fg-secondary`; active: `bg-nav-surface-hover text-nav-fg-primary`
 - Two click zones when `subMenu` is provided:
   - Click on chip body → `onToggle()`
-  - Click on chevron → opens `subMenu` without toggling (uses `Dropdown` primitive under the hood)
+  - Click on chevron (rendered inline as its own `<button>`, not via `Dropdown`'s built-in chevron slot, so the two click targets stay separable) → opens `subMenu`
+- `Dropdown` is still used internally to anchor and portal the sub-menu; we just render our own chevron trigger instead of using its default
 - Without `subMenu`: chevron omitted, whole chip is one click target
 
 ### `SidebarSection`
@@ -125,7 +127,7 @@ export interface SidebarSectionProps {
   - Actions: `opacity-0 group-hover:opacity-100 transition-opacity`
 - Body: wrapped in a div with `max-height` + opacity transition for collapse/expand
 - Nesting allowed — sections render sections
-- Keyboard: header is `role="button" tabIndex={0}`; Enter/Space toggles; arrow keys navigate between focusable children
+- Keyboard: header is `role="button" tabIndex={0}`; Enter/Space toggles. Arrow-key navigation across section bodies is **out of scope** — Tab/Shift-Tab via native focus order is the only traversal contract. (Arrow-key navigation can be added later as a non-breaking enhancement; leaving it out keeps the initial implementation simple and avoids imposing a specific traversal model before consumers ask for one.)
 
 ### `SidebarRow`
 
@@ -203,16 +205,16 @@ export interface SidebarStatusChipOption {
 }
 
 export interface SidebarStatusChipProps {
-  label: string;
-  color: SidebarFilterChipProps['color'];
+  value: string;                    // controlled current value; must match one of options[].value
   options: SidebarStatusChipOption[];
-  onChange?: (value: string) => void;
+  onChange: (value: string) => void;
   className?: string;
 }
 ```
 
+- Fully controlled — consumer owns the current value. Label and color are derived from `options.find(o => o.value === value)` so the chip always stays in sync.
 - Shape: colored dot + label + chevron, rendered as a `<button>`
-- Click → opens an `ActionMenu` (via `Dropdown`) listing `options`; each option renders the same colored-dot + label treatment; selected option shows a check
+- Click → opens an `ActionMenu` (via `Dropdown`) listing `options`; each option renders the same colored-dot + label treatment; the option matching `value` shows a check
 - `onChange(value)` fires when user picks an option; closing without selection calls nothing
 - Uses only existing primitives internally (Rule 6)
 
@@ -238,7 +240,11 @@ Added to the Semantic collection in both the `last-samurai` Tailwind/CSS layer a
 
 **Why a dedicated `nav-*` namespace.** Sidebar chrome uses dark-theme-on-light-app-surface treatments that don't map onto general-purpose surface tokens. The existing `nav-active-bg` / `nav-hover-bg` / `nav-text` tokens used by TopNav already establish this pattern — we're extending it.
 
-Exact dark-mode color values are derived from production screenshot during the implementation phase (eyedropper on screenshot + tweaking against the rest of the palette); they are tracked in the plan's token-definition task rather than fixed here.
+**Dark-mode color derivation.** Exact hex values are derived from the production screenshot during the implementation phase (eyedropper on screenshot, tweaked against the rest of the palette). Acceptance criteria:
+
+- Each derived color is within ΔE00 ≤ 3 of the corresponding pixel on the production screenshot (perceptual match)
+- The resulting palette passes WCAG AA contrast against `nav-fg-primary` / `nav-fg-secondary` / `nav-fg-muted` on every surface token (`nav-surface`, `nav-surface-hover`, `nav-surface-elevated`)
+- Values are committed to the Semantic collection (both Tailwind/CSS source and Figma variables) in the same task that introduces the tokens
 
 ---
 
@@ -317,6 +323,8 @@ New `.stories.tsx` files under `components/navigation/`:
 - `SidebarFilterChip.stories.tsx` — `Default`, `Active`, `WithSubMenu`, `Grid`
 - `SidebarStatusChip.stories.tsx` — `Default`, `AllColors`, `Controlled`
 - `SidebarHeader.stories.tsx` — `Default`, `WithBack`, `WithActions`, `WithSubtitle`, `Full`
+
+The `Sidebar.stories.tsx` `Default` story demonstrates the `Sidebar.Footer` convention (plain `<div>` as the last child of `<Sidebar>`) so consumers see the pattern without needing a typed wrapper.
 - `TopNav.stories.tsx` — existing; no changes required (source is correct; stories should already reflect it)
 
 No Jest/Vitest tests added — matches the rest of `components/`. Visual coverage via Storybook stories.
@@ -367,7 +375,6 @@ No Jest/Vitest tests added — matches the rest of `components/`. Visual coverag
 
 ## Open questions deferred to implementation plan
 
-- Exact pixel values for the dark-mode `nav-*` color tokens (eyedrop from production screenshot, tweak against existing palette)
+- Exact pixel values for the dark-mode `nav-*` color tokens (derived from production screenshot per the acceptance criteria in the "New semantic tokens" section above)
 - Whether `SidebarToolbar` gets a typed `Sidebar.Toolbar` re-export or stays as a top-level import (stylistic — pick during plan writing based on how the rest of the compound APIs are structured in this codebase)
 - Whether the collapse animation on `SidebarSection` uses CSS `max-height` transitions or JS-measured height (pick during implementation; prefer pure CSS if it works cleanly)
-- Whether to use `Dropdown`'s existing chevron slot inside `SidebarFilterChip` or render the chevron ourselves to get the two-click-zone split (likely render ourselves; confirm during implementation)
