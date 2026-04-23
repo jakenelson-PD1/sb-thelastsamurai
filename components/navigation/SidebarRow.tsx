@@ -85,7 +85,7 @@ export function SidebarRow({
             {hoverActions}
           </span>
         )}
-        {trailing && <span className="shrink-0">{trailing}</span>}
+        {trailing && <span className="shrink-0" onClick={stop}>{trailing}</span>}
         {overflowMenu && (
           <span className="shrink-0" onClick={stop}>
             {overflowMenu}
