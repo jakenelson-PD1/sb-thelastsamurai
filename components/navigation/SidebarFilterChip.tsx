@@ -4,7 +4,7 @@ import { Dropdown } from '../overlay/Dropdown';
 import { ChevronDownIcon } from '../primitives/icons/ChevronDownIcon';
 import { dotColorClass, type SidebarChipColor } from './SidebarStatusChip';
 
-export type { SidebarChipColor } from './SidebarStatusChip';
+export type { SidebarChipColor };
 
 export interface SidebarFilterChipProps {
   label: string;

@@ -13,7 +13,6 @@ export function Sidebar({
 }: SidebarProps) {
   return (
     <nav
-      role="navigation"
       aria-label={ariaLabel}
       data-theme={theme}
       className={clsx('flex flex-col h-full bg-sidenav-surface overflow-hidden', className)}
