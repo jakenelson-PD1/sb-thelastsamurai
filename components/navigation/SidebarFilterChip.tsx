@@ -32,6 +32,7 @@ export function SidebarFilterChip({
       <button
         type="button"
         onClick={(e) => { e.stopPropagation(); onToggle(); }}
+        aria-pressed={active}
         className="inline-flex items-center gap-1.5 text-label-sm font-medium"
       >
         <span className={clsx('h-2 w-2 rounded-full shrink-0', dotColorClass[color])} />
@@ -51,7 +52,7 @@ export function SidebarFilterChip({
           trigger={
             <button
               type="button"
-              onClick={(e) => { e.stopPropagation(); setOpen(true); }}
+              onClick={(e) => { e.stopPropagation(); setOpen((v) => !v); }}
               className="p-0.5 text-sidenav-fg-muted hover:text-sidenav-fg-primary"
               aria-label={`${label} sub-menu`}
             >
