@@ -53,7 +53,7 @@ export function SidebarSection({
         <ChevronDownIcon
           size={14}
           className={clsx(
-            'text-sidenav-fg-muted shrink-0 transition-transform',
+            'text-sidenav-fg-muted shrink-0 transition-transform motion-reduce:transition-none',
             !open && '-rotate-90',
           )}
         />
@@ -75,7 +75,7 @@ export function SidebarSection({
       </div>
       <div
         className={clsx(
-          'grid transition-[grid-template-rows] duration-200 ease-out',
+          'grid transition-[grid-template-rows] duration-200 ease-out motion-reduce:transition-none',
           open ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]',
         )}
       >
