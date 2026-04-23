@@ -6,7 +6,7 @@ import { ChevronDownIcon } from '../primitives/icons/ChevronDownIcon';
 
 export type SidebarChipColor = 'brand' | 'yellow' | 'green' | 'red' | 'neutral';
 
-const dotColorClass: Record<SidebarChipColor, string> = {
+export const dotColorClass: Record<SidebarChipColor, string> = {
   brand:   'bg-action-primary',
   yellow:  'bg-status-warning',
   green:   'bg-status-success',
