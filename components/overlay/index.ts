@@ -1,7 +1,9 @@
+export { Dropdown } from './Dropdown';
+export type { DropdownProps } from './Dropdown';
 export { Modal } from './Modal';
 export type { ModalProps, ModalAction } from './Modal';
-export { ActionMenu } from './ActionMenu';
-export type { ActionMenuProps, ActionMenuGroup, ActionMenuItem } from './ActionMenu';
+export { ActionMenu, ActionMenuItemRow } from './ActionMenu';
+export type { ActionMenuProps, ActionMenuGroup, ActionMenuItem, ActionMenuItemRowProps } from './ActionMenu';
 export { Drawer } from './Drawer';
 export type { DrawerProps } from './Drawer';
 export { Tooltip } from './Tooltip';
