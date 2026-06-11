@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# LSDS pre-commit: token compliance gate.
+# Runs scripts/check-tokens.mjs against the staged source files only so the
+# hook stays fast. To bypass once for a genuine exception, add
+# `// token-lint-skip: <reason>` on the same line as the value.
+
+set -e
+
+# Collect staged .ts/.tsx/.css files (Added/Copied/Modified/Renamed).
+staged=$(git diff --cached --name-only --diff-filter=ACMR | grep -E '\.(tsx?|css)$' || true)
+
+if [ -z "$staged" ]; then
+  exit 0
+fi
+
+# shellcheck disable=SC2086
+node scripts/check-tokens.mjs $staged

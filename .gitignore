@@ -5,3 +5,4 @@ storybook-static/
 *.local
 .env
 .DS_Store
+stories.json
