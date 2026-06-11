@@ -14,4 +14,6 @@ export { FilterSwatch } from './FilterSwatch';
 export type { FilterSwatchProps } from './FilterSwatch';
 export { FilterSwatchGroup } from './FilterSwatchGroup';
 export type { FilterSwatchGroupProps, FilterSwatchGroupSwatch } from './FilterSwatchGroup';
+export { StatusTile } from './StatusTile';
+export type { StatusTileProps, StatusTileVariant } from './StatusTile';
 export * from './icons';

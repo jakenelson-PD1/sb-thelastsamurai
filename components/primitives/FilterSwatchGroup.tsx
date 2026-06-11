@@ -5,7 +5,7 @@ import { Card } from '../data-display/Card';
 export interface FilterSwatchGroupSwatch {
   /** Color value — use a value from the design system palette */
   color: string;
-  active?: boolean;
+  selected?: boolean;
   highPriority?: boolean;
   onClick?: () => void;
   /** Per-swatch tooltip, passed through to the underlying FilterSwatch */
@@ -28,15 +28,11 @@ export interface FilterSwatchGroupProps {
 }
 
 /**
- * Splits `swatches` into up to two rows by count.
- * - 1–6: one row (all swatches)
- * - 7+:  two rows of ceil(N/2) and floor(N/2)
+ * Returns swatches as a single row. Matches Figma `FilterSwatchGroup` canonical
+ * (Layout=OneRow only). The card width grows horizontally to fit all swatches.
  */
 function splitRows<T>(swatches: T[]): [T[], T[]] {
-  const count = swatches.length;
-  if (count <= 6) return [swatches, []];
-  const splitIndex = Math.ceil(count / 2);
-  return [swatches.slice(0, splitIndex), swatches.slice(splitIndex)];
+  return [swatches, []];
 }
 
 export function FilterSwatchGroup({
@@ -51,13 +47,13 @@ export function FilterSwatchGroup({
   const hasLabel = Boolean(label);
 
   const rows = (
-    <div className="flex flex-col gap-2">
-      <div className="flex gap-2">
+    <div className="flex flex-col gap-1">
+      <div className="flex gap-1">
         {row1.map((s, i) => (
           <FilterSwatch
             key={`r1-${i}`}
             color={s.color}
-            active={s.active}
+            selected={s.selected}
             highPriority={s.highPriority}
             onClick={s.onClick}
             label={s.label}
@@ -65,21 +61,6 @@ export function FilterSwatchGroup({
           />
         ))}
       </div>
-      {row2.length > 0 && (
-        <div className="flex gap-2">
-          {row2.map((s, i) => (
-            <FilterSwatch
-              key={`r2-${i}`}
-              color={s.color}
-              active={s.active}
-              highPriority={s.highPriority}
-              onClick={s.onClick}
-              label={s.label}
-              size={size}
-            />
-          ))}
-        </div>
-      )}
     </div>
   );
 
@@ -87,7 +68,7 @@ export function FilterSwatchGroup({
     return (
       <div className={clsx('flex flex-row items-center gap-2', className)}>
         {hasLabel && (
-          <span className="text-label-md text-fg-muted">{label}</span>
+          <span className="text-body-md text-primary">{label}</span>
         )}
         {rows}
       </div>
@@ -98,7 +79,7 @@ export function FilterSwatchGroup({
     <div className={clsx('flex flex-col items-center gap-2', className)}>
       {hasLabel ? <Card padding="xs">{rows}</Card> : rows}
       {hasLabel && (
-        <span className="text-label-md text-fg-muted text-center">{label}</span>
+        <span className="text-label-md text-muted text-center">{label}</span>
       )}
     </div>
   );

@@ -5,7 +5,8 @@ import { Flag02Icon } from './icons/Flag02Icon';
 export interface FilterSwatchProps {
   /** Color value — use a value from the design system palette */
   color: string;
-  active?: boolean;
+  selected?: boolean;
+  disabled?: boolean;
   onClick?: () => void;
   size?: 'sm' | 'md';
   className?: string;
@@ -21,7 +22,8 @@ const sizeMap = {
 
 export function FilterSwatch({
   color,
-  active = false,
+  selected = false,
+  disabled = false,
   onClick,
   size = 'sm',
   className,
@@ -33,18 +35,21 @@ export function FilterSwatch({
     <button
       type="button"
       onClick={onClick}
-      aria-pressed={active}
+      disabled={disabled}
+      aria-pressed={selected}
       className={clsx(
-        'flex items-center justify-center transition-all',
+        'flex items-center justify-center rounded-control transition-all',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-line-focus focus-visible:ring-offset-2 focus-visible:ring-offset-canvas',
+        'disabled:cursor-not-allowed disabled:opacity-40',
         className,
       )}
     >
       <span
         className={clsx(
           'relative rounded-control transition-all',
-          active
+          selected
             ? 'outline outline-2 outline-[var(--color-action-primary)] outline-offset-0'
-            : 'opacity-80 hover:opacity-100',
+            : !disabled && 'opacity-80 hover:opacity-100',
           swatch,
         )}
         style={{ backgroundColor: color }}

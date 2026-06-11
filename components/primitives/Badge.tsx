@@ -2,16 +2,19 @@ import { clsx } from 'clsx';
 import { cva, type VariantProps } from 'class-variance-authority';
 
 const badgeVariants = cva(
-  'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium',
+  'inline-flex items-center rounded-control px-2 py-[2px] text-label-md font-medium', // py: 2px hardcoded — too small for spacing scale, intentional badge-only exception
   {
     variants: {
       variant: {
-        default:  'bg-surface text-fg-secondary',
-        brand:    'bg-status-info-surface text-status-info-fg',
+        default:  'bg-surface text-secondary',
+        brand:    'bg-row-selected text-status-info-fg',
         success:  'bg-status-success-surface text-status-success-fg',
         warning:  'bg-status-warning-surface text-status-warning-fg',
         danger:   'bg-status-error-surface text-status-error-fg',
-        outlined: 'border border-line-strong bg-transparent text-fg-secondary',
+        outlined: 'border border-line-strong bg-transparent text-secondary',
+        cerulean: 'bg-status-cerulean-surface text-status-cerulean-fg',
+        purple:   'bg-status-purple-surface text-status-purple-fg',
+        pink:     'bg-status-pink-surface text-status-pink-fg',
       },
     },
     defaultVariants: { variant: 'default' },
@@ -29,14 +32,14 @@ export function Badge({ variant, onDelete, avatar, className, children, ...props
   return (
     <span className={clsx(badgeVariants({ variant }), className)} {...props}>
       {avatar && (
-        <span className="-ml-1 mr-1.5 inline-flex">{avatar}</span>
+        <span className="-ml-1 mr-2 inline-flex">{avatar}</span>
       )}
       {children}
       {onDelete && (
         <button
           type="button"
           onClick={onDelete}
-          className="ml-1 -mr-0.5 inline-flex h-4 w-4 items-center justify-center rounded-full hover:bg-fg-primary/10 focus:outline-none"
+          className="ml-1 -mr-1 inline-flex h-4 w-4 items-center justify-center rounded-full hover:bg-primary/10 focus:outline-none"
           aria-label="Remove"
         >
           ×
