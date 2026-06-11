@@ -10,7 +10,8 @@
     "check-tokens": "node scripts/check-tokens.mjs",
     "prelint": "npm run check-tokens",
     "format": "prettier --write .",
-    "prepare": "husky"
+    "prepare": "husky",
+    "gen-catalog": "node scripts/gen-design-system.mjs"
   },
   "dependencies": {
     "class-variance-authority": "^0.7.0",
