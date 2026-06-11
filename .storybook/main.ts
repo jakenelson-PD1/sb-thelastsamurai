@@ -6,6 +6,7 @@ const config: StorybookConfig = {
     '@storybook/addon-docs',
     '@storybook/addon-a11y',
     '@storybook/addon-viewport',
+    '@storybook/addon-toolbars',
   ],
   framework: {
     name: '@storybook/react-vite',

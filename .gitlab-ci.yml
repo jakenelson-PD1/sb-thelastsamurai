@@ -1,0 +1,26 @@
+image: node:20-alpine
+
+stages:
+  - build
+
+pages:
+  stage: build
+  cache:
+    key:
+      files:
+        - package-lock.json
+    paths:
+      - node_modules/
+  before_script:
+    - apk add --no-cache git
+  script:
+    - npm ci --no-audit --no-fund
+    - npm run build-storybook -- --output-dir storybook-static
+    - rm -rf public
+    - mv storybook-static public
+  artifacts:
+    paths:
+      - public
+    expire_in: 30 days
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
