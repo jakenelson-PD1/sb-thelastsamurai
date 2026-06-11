@@ -1,17 +1,31 @@
 ---
 name: lsds-rapid-prototyping
-description: Rapid UI prototyping with the Suralink Last Samurai Design System (LSDS). Use this skill whenever a user asks to mock up, prototype, sketch, draft, scaffold, build, or "throw together" any user interface — pages, screens, dashboards, settings panels, flows, forms, modals, layouts, components — for the Suralink RLM (Request List Management) product. Also trigger on direct mentions of LSDS, Last Samurai, Suralink, RequestRow, FileRow, SideNav, RLM Layout, or links to the Figma file ZP0lSeT5Nwm1lpWI79qIaf or the sb-thelastsamurai repo. Even casual asks like "what would a settings page look like" or "give me a quick mock of X" should trigger — the whole point is to compose real LSDS components instead of generic Tailwind, every time. Works for devs scaffolding features, PMs validating flows in code, and product designers prototyping in real components before high-fi mocks.
+description: Rapid UI prototyping with the Suralink Last Samurai Design System (LSDS). Use this skill whenever a user asks to mock up, prototype, sketch, draft, scaffold, build, or "throw together" any user interface — pages, screens, dashboards, settings panels, flows, forms, modals, layouts, components — for the Suralink RLM (Request List Management) product. Also trigger on direct mentions of LSDS, Last Samurai, Suralink, RequestRow, FileRow, SideNav, RLM Layout, or links to the Figma file ZP0lSeT5Nwm1lpWI79qIaf or the sb-thelastsamurai repo. Even casual asks like "what would a settings page look like" or "give me a quick mock of X" should trigger — the whole point is to compose real LSDS components instead of generic Tailwind, every time, cross-referencing both the live Storybook (implementation source of truth) and the Figma file (design source of truth). Works for devs scaffolding features, PMs validating flows in code, and product designers prototyping in real components before high-fi mocks.
 ---
 
 # LSDS Rapid Prototyping
 
 ## Why this skill exists
 
-Suralink has a complete design system — 80+ canonical React components, 73 semantic tokens, a pixel-pinned Figma library — and a Storybook deployed at https://jake.nelson2.gitlab.io/sb-thelastsamurai. The fastest path from "build me a settings page" to working code is **composition of these canonical components** with **token-bound styling**, not generic Tailwind invented on the fly.
+Suralink has a complete design system with two parallel sources of truth that must stay aligned:
+
+- **Storybook (GitLab Pages)** — https://jake.nelson2.gitlab.io/sb-thelastsamurai — the *implementation* source of truth. Every canonical React component, every prop, every variant, rendered live with pixel-pinned MatrixVerify decorators that diff against Figma frames.
+- **Figma file ZP0lSeT5Nwm1lpWI79qIaf** — https://www.figma.com/design/ZP0lSeT5Nwm1lpWI79qIaf/LSDS — the *design* source of truth. Canonical ComponentSets, semantic variables, pages organized by section (RLM Layout / Layout / Navigation / Overlay / Primitives / Foundation) that mirror Storybook 1:1.
+
+The fastest path from "build me a settings page" to working code is **composition of these canonical components** with **token-bound styling**, **cross-referenced against both surfaces**, not generic Tailwind invented on the fly.
 
 Without this skill, Claude defaults to writing UI from scratch — guessing class names, picking arbitrary colors, inventing component shapes that don't match what already exists. The result looks plausible but disconnects from the design system entirely. Brand drift, broken dark mode, off-scale spacing.
 
-This skill is the gate. It loads the live LSDS catalog, enforces the four discipline rules from cc2figma (canonical-first, token-binding, brief-before-build, verify-after-write), and gives Claude a structured loop that produces UI matching the design system every time.
+This skill is the gate. It loads the live LSDS catalog, enforces the four discipline rules from cc2figma (canonical-first, token-binding, brief-before-build, verify-after-write), and gives Claude a structured loop that produces UI matching **both** sources of truth every time.
+
+## The dual-source-of-truth principle
+
+Storybook and Figma are intentionally kept in lockstep. Each component exists in both surfaces, with variants and props mirrored exactly. When you reach for a component during prototyping:
+
+- **Storybook tells you what is implementable**: "Does this prop exist? What variants are available? What does the rendered state look like?" Cite a Storybook story URL when you make a non-obvious prop/variant choice.
+- **Figma tells you what is canonical**: "Is this the intended visual? What's the design rationale? Are there spec details (padding, alignment, motion) the implementation might lag on?" Cite a Figma node-id when you make a non-obvious visual choice.
+
+If Storybook and Figma disagree on something, that's a real bug — **surface it to the user**, don't pick a side silently. Most components have been reconciled (see the project's "Reconcile X page" history in commits) but drift is always possible.
 
 ## The four hard rules
 
@@ -59,20 +73,23 @@ Wait for the user to confirm or amend. This catches misalignment in 30 seconds i
 
 **Exception**: trivial asks ("just a button labeled Save", "a single Toast") can skip the brief and go straight to code. Use judgment — the brief is for compositions, not one-liners.
 
-### Rule 4 — Verify after every chunk.
+### Rule 4 — Verify after every chunk against BOTH sources.
 
 After generating each section of JSX, run this self-check pass before moving on:
 
-- [ ] Every component name matches one in the catalog
+- [ ] Every component name matches one in the catalog (Storybook-derived)
 - [ ] Every import path matches the catalog's import line
 - [ ] Every prop is in that component's Props interface
 - [ ] Every `variant=` / `size=` value is a documented variant in the catalog
 - [ ] Every className uses only semantic tokens (no raw hex/px/Tailwind defaults)
-- [ ] When you made a non-obvious choice, cite the catalog row or a Storybook URL
+- [ ] For every non-obvious choice, cite **both** a Storybook story URL **and** a Figma node-id — this is how you prove the choice is grounded in both sources of truth, not invented
+- [ ] If you couldn't find a matching Figma frame for a Storybook story (or vice versa), flag it — that's possible drift between the two surfaces and the user needs to know
 
-If anything fails, fix it before showing the user. If you can't fix it (the variant truly doesn't exist), surface the gap with two options: "(a) use the closest existing variant — here's how; (b) add this variant to the canonical — here's what would change."
+If anything fails, fix it before showing the user. If you can't fix it (the variant truly doesn't exist), surface the gap with two options: "(a) use the closest existing variant — here's how; (b) add this variant to the canonical — here's what would change in both Storybook source and Figma."
 
 ## The prototyping loop
+
+Both sources of truth are consulted on every loop iteration. Storybook for "does it work this way?", Figma for "does it look this way?". Skipping either is how drift creeps in.
 
 ```
 user describes UI / drops a reference
@@ -82,20 +99,28 @@ user describes UI / drops a reference
         |
         v
 ② output Design Brief → wait for user confirmation (skip only for trivial asks)
+   ↳ Brief must name BOTH the Storybook story and the Figma frame
+      for each component you plan to use
         |
         v
 ┌────► ③ pick LSDS components from the catalog (by name, by visual intent, or by Figma page)
 │         |
-│      ④ compose JSX using only catalog-listed props + variants
+│      ④ for each component, open BOTH refs:
+│           • Storybook story URL → confirms props/variants are real
+│           • Figma node-id        → confirms visual intent + canonical spec
 │         |
-│      ⑤ bind every style to a semantic token (no raw)
+│      ⑤ compose JSX using only catalog-listed props + variants
 │         |
-│      ⑥ self-verify against the catalog; cite Storybook/Figma links for non-obvious calls
+│      ⑥ bind every style to a semantic token (no raw)
+│         |
+│      ⑦ self-verify against the catalog AND against Figma; cite both
+│         Storybook and Figma links for non-obvious calls; flag any drift
 │         |
 └────── next section (loop until brief is fully covered)
         |
         v
-final pass: full code + one-line checklist of what was used + what's still open
+final pass: full code + checklist of what was used (Storybook + Figma links per
+component) + what's still open
 ```
 
 ## Loading the catalog
@@ -201,10 +226,23 @@ If one of those is on the tip of your tongue, stop. Run the prototyping loop fro
 
 ## When you don't know
 
+The two sources answer different questions. Reach for the right one:
+
+| Question | Source to check |
+|---|---|
+| "Does this prop exist on this component?" | **Storybook** (catalog or live story) |
+| "What variants are available?" | **Storybook** (catalog or live story) |
+| "What does this state look like rendered?" | **Storybook** (open the story directly) |
+| "What's the canonical design intent here?" | **Figma** (open the ComponentSet node) |
+| "What spec details should this match?" | **Figma** (read variables, padding, alignment) |
+| "Is this visual the brand's intent or a one-off?" | **Figma** (canonical wins) |
+| "Storybook says X, Figma shows Y — what now?" | **Surface the drift to the user. Don't pick a side.** |
+
+Cascade:
 - **Catalog ambiguous** → fetch the Storybook story URL for the component
-- **Storybook doesn't show what you need** → cite the Figma node-id and ask the user
-- **Variant absent** → propose extending an existing component with the smallest delta; do not silently invent
-- **Component absent** → name the gap, propose options, do not scaffold
+- **Storybook story doesn't show what you need** → cite the Figma node-id and ask the user
+- **Figma doesn't have the frame either** → variant truly absent; propose extending the canonical with the smallest delta in both surfaces; do not silently invent
+- **Component absent from both surfaces** → name the gap, propose options, do not scaffold
 
 ## Reference materials
 
