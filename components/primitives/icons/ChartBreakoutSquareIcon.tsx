@@ -1,16 +1,18 @@
 import { clsx } from 'clsx';
+import { resolveIconSize, type IconSizeProp } from './_iconSize';
 
 export interface ChartBreakoutSquareIconProps {
-  size?: number;
+  size?: IconSizeProp;
   className?: string;
   'aria-label'?: string;
 }
 
-export function ChartBreakoutSquareIcon({ size = 20, className, ...props }: ChartBreakoutSquareIconProps) {
+export function ChartBreakoutSquareIcon({ size = 'md', className, ...props }: ChartBreakoutSquareIconProps) {
+  const px = resolveIconSize(size);
   return (
     <svg
-      width={size}
-      height={size}
+      width={px}
+      height={px}
       viewBox="0 0 20 20"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
@@ -18,7 +20,7 @@ export function ChartBreakoutSquareIcon({ size = 20, className, ...props }: Char
       aria-hidden={!props['aria-label']}
       {...props}
     >
-      <path d="M9.16667 2.49984H6.5C5.09987 2.49984 4.3998 2.49984 3.86503 2.77232C3.39462 3.012 3.01217 3.39445 2.77248 3.86486C2.5 4.39964 2.5 5.0997 2.5 6.49984V13.4998C2.5 14.9 2.5 15.6 2.77248 16.1348C3.01217 16.6053 3.39462 16.9877 3.86503 17.2273C4.3998 17.4998 5.09987 17.4998 6.5 17.4998H13.5C14.9002 17.4998 15.6002 17.4998 16.135 17.2273C16.6054 16.9877 16.9878 16.6053 17.2275 16.1348C17.5 15.6 17.5 14.9 17.5 13.4998V10.8332M10 6.6665H13.3333V9.99984M12.9167 2.9165V1.6665M16.1994 3.80039L17.0833 2.9165M17.0919 7.08317H18.3419M2.5 11.1224C3.04328 11.2063 3.59989 11.2498 4.16667 11.2498C7.82197 11.2498 11.0544 9.4395 13.0164 6.6665" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M9.16667 2.49984H6.5C5.09987 2.49984 4.3998 2.49984 3.86503 2.77232C3.39462 3.012 3.01217 3.39445 2.77248 3.86486C2.5 4.39964 2.5 5.0997 2.5 6.49984V13.4998C2.5 14.9 2.5 15.6 2.77248 16.1348C3.01217 16.6053 3.39462 16.9877 3.86503 17.2273C4.3998 17.4998 5.09987 17.4998 6.5 17.4998H13.5C14.9002 17.4998 15.6002 17.4998 16.135 17.2273C16.6054 16.9877 16.9878 16.6053 17.2275 16.1348C17.5 15.6 17.5 14.9 17.5 13.4998V10.8332M10 6.6665H13.3333V9.99984M12.9167 2.9165V1.6665M16.1994 3.80039L17.0833 2.9165M17.0919 7.08317H18.3419M2.5 11.1224C3.04328 11.2063 3.59989 11.2498 4.16667 11.2498C7.82197 11.2498 11.0544 9.4395 13.0164 6.6665" stroke="currentColor" strokeWidth="1.6667" strokeLinecap="round" strokeLinejoin="round"/>
     </svg>
   );
 }

@@ -1,16 +1,18 @@
 import { clsx } from 'clsx';
+import { resolveIconSize, type IconSizeProp } from './_iconSize';
 
 export interface Loading02IconProps {
-  size?: number;
+  size?: IconSizeProp;
   className?: string;
   'aria-label'?: string;
 }
 
-export function Loading02Icon({ size = 20, className, ...props }: Loading02IconProps) {
+export function Loading02Icon({ size = 'md', className, ...props }: Loading02IconProps) {
+  const px = resolveIconSize(size);
   return (
     <svg
-      width={size}
-      height={size}
+      width={px}
+      height={px}
       viewBox="0 0 20 20"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
@@ -19,7 +21,7 @@ export function Loading02Icon({ size = 20, className, ...props }: Loading02IconP
       {...props}
     >
       <g clipPath="url(#loading02-clip0_118_38090)">
-<path d="M10 1.66669V5.00002M10 15V18.3334M5.00002 10H1.66669M18.3334 10H15M15.8987 15.8987L13.5417 13.5417M15.8987 4.16664L13.5417 6.52366M4.10133 15.8987L6.45835 13.5417M4.10133 4.16664L6.45835 6.52366" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+<path d="M10 1.66669V5.00002M10 15V18.3334M5.00002 10H1.66669M18.3334 10H15M15.8987 15.8987L13.5417 13.5417M15.8987 4.16664L13.5417 6.52366M4.10133 15.8987L6.45835 13.5417M4.10133 4.16664L6.45835 6.52366" stroke="currentColor" strokeWidth="1.6667" strokeLinecap="round" strokeLinejoin="round"/>
 </g>
 <defs>
 <clipPath id="loading02-clip0_118_38090">

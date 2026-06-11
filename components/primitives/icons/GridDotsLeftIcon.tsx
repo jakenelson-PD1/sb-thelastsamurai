@@ -1,16 +1,18 @@
 import { clsx } from 'clsx';
+import { resolveIconSize, type IconSizeProp } from './_iconSize';
 
 export interface GridDotsLeftIconProps {
-  size?: number;
+  size?: IconSizeProp;
   className?: string;
   'aria-label'?: string;
 }
 
-export function GridDotsLeftIcon({ size = 20, className, ...props }: GridDotsLeftIconProps) {
+export function GridDotsLeftIcon({ size = 'md', className, ...props }: GridDotsLeftIconProps) {
+  const px = resolveIconSize(size);
   return (
     <svg
-      width={size}
-      height={size}
+      width={px}
+      height={px}
       viewBox="0 0 20 20"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
@@ -18,7 +20,7 @@ export function GridDotsLeftIcon({ size = 20, className, ...props }: GridDotsLef
       aria-hidden={!props['aria-label']}
       {...props}
     >
-      <path d="M6.25 2.5H6.25833M6.25 10H6.25833M6.25 17.5H6.25833M13.75 2.5H13.7583M13.75 10H13.7583M13.75 17.5H13.7583M10 2.5H10.0083M10 10H10.0083M10 17.5H10.0083M10 13.75H10.0083M10 6.25H10.0083M17.5 2.5H17.5083M17.5 10H17.5083M17.5 17.5H17.5083M17.5 13.75H17.5083M17.5 6.25H17.5083M2.5 17.5V2.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M6.25 2.5H6.25833M6.25 10H6.25833M6.25 17.5H6.25833M13.75 2.5H13.7583M13.75 10H13.7583M13.75 17.5H13.7583M10 2.5H10.0083M10 10H10.0083M10 17.5H10.0083M10 13.75H10.0083M10 6.25H10.0083M17.5 2.5H17.5083M17.5 10H17.5083M17.5 17.5H17.5083M17.5 13.75H17.5083M17.5 6.25H17.5083M2.5 17.5V2.5" stroke="currentColor" strokeWidth="1.6667" strokeLinecap="round" strokeLinejoin="round"/>
     </svg>
   );
 }

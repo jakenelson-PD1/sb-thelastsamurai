@@ -1,16 +1,18 @@
 import { clsx } from 'clsx';
+import { resolveIconSize, type IconSizeProp } from './_iconSize';
 
 export interface RefreshCw01IconProps {
-  size?: number;
+  size?: IconSizeProp;
   className?: string;
   'aria-label'?: string;
 }
 
-export function RefreshCw01Icon({ size = 20, className, ...props }: RefreshCw01IconProps) {
+export function RefreshCw01Icon({ size = 'md', className, ...props }: RefreshCw01IconProps) {
+  const px = resolveIconSize(size);
   return (
     <svg
-      width={size}
-      height={size}
+      width={px}
+      height={px}
       viewBox="0 0 20 20"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
@@ -18,7 +20,7 @@ export function RefreshCw01Icon({ size = 20, className, ...props }: RefreshCw01I
       aria-hidden={!props['aria-label']}
       {...props}
     >
-      <path d="M18.3333 8.33333C18.3333 8.33333 16.6625 6.05685 15.3052 4.69853C13.9477 3.34022 12.072 2.5 10 2.5C5.85787 2.5 2.5 5.85787 2.5 10C2.5 14.1422 5.85787 17.5 10 17.5C13.4192 17.5 16.3041 15.2119 17.2068 12.0833M18.3333 8.33333V3.33333M18.3333 8.33333H13.3333" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M18.3333 8.33333C18.3333 8.33333 16.6625 6.05685 15.3052 4.69853C13.9477 3.34022 12.072 2.5 10 2.5C5.85787 2.5 2.5 5.85787 2.5 10C2.5 14.1422 5.85787 17.5 10 17.5C13.4192 17.5 16.3041 15.2119 17.2068 12.0833M18.3333 8.33333V3.33333M18.3333 8.33333H13.3333" stroke="currentColor" strokeWidth="1.6667" strokeLinecap="round" strokeLinejoin="round"/>
     </svg>
   );
 }

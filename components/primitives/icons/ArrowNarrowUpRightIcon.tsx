@@ -1,16 +1,18 @@
 import { clsx } from 'clsx';
+import { resolveIconSize, type IconSizeProp } from './_iconSize';
 
 export interface ArrowNarrowUpRightIconProps {
-  size?: number;
+  size?: IconSizeProp;
   className?: string;
   'aria-label'?: string;
 }
 
-export function ArrowNarrowUpRightIcon({ size = 20, className, ...props }: ArrowNarrowUpRightIconProps) {
+export function ArrowNarrowUpRightIcon({ size = 'md', className, ...props }: ArrowNarrowUpRightIconProps) {
+  const px = resolveIconSize(size);
   return (
     <svg
-      width={size}
-      height={size}
+      width={px}
+      height={px}
       viewBox="0 0 20 20"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
@@ -18,7 +20,7 @@ export function ArrowNarrowUpRightIcon({ size = 20, className, ...props }: Arrow
       aria-hidden={!props['aria-label']}
       {...props}
     >
-      <path d="M5 15L15 5M15 5H8.33333M15 5V11.6667" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M5 15L15 5M15 5H8.33333M15 5V11.6667" stroke="currentColor" strokeWidth="1.6667" strokeLinecap="round" strokeLinejoin="round"/>
     </svg>
   );
 }

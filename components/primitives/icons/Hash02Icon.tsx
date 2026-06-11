@@ -1,16 +1,18 @@
 import { clsx } from 'clsx';
+import { resolveIconSize, type IconSizeProp } from './_iconSize';
 
 export interface Hash02IconProps {
-  size?: number;
+  size?: IconSizeProp;
   className?: string;
   'aria-label'?: string;
 }
 
-export function Hash02Icon({ size = 20, className, ...props }: Hash02IconProps) {
+export function Hash02Icon({ size = 'md', className, ...props }: Hash02IconProps) {
+  const px = resolveIconSize(size);
   return (
     <svg
-      width={size}
-      height={size}
+      width={px}
+      height={px}
       viewBox="0 0 20 20"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
@@ -18,7 +20,7 @@ export function Hash02Icon({ size = 20, className, ...props }: Hash02IconProps) 
       aria-hidden={!props['aria-label']}
       {...props}
     >
-      <path d="M7.91667 2.5L5.41667 17.5M14.5833 2.5L12.0833 17.5M17.0833 6.66667H2.91668M16.25 13.3333H2.08334" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M7.91667 2.5L5.41667 17.5M14.5833 2.5L12.0833 17.5M17.0833 6.66667H2.91668M16.25 13.3333H2.08334" stroke="currentColor" strokeWidth="1.6667" strokeLinecap="round" strokeLinejoin="round"/>
     </svg>
   );
 }

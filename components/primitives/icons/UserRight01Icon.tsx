@@ -1,16 +1,18 @@
 import { clsx } from 'clsx';
+import { resolveIconSize, type IconSizeProp } from './_iconSize';
 
 export interface UserRight01IconProps {
-  size?: number;
+  size?: IconSizeProp;
   className?: string;
   'aria-label'?: string;
 }
 
-export function UserRight01Icon({ size = 20, className, ...props }: UserRight01IconProps) {
+export function UserRight01Icon({ size = 'md', className, ...props }: UserRight01IconProps) {
+  const px = resolveIconSize(size);
   return (
     <svg
-      width={size}
-      height={size}
+      width={px}
+      height={px}
       viewBox="0 0 20 20"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
@@ -18,7 +20,7 @@ export function UserRight01Icon({ size = 20, className, ...props }: UserRight01I
       aria-hidden={!props['aria-label']}
       {...props}
     >
-      <path d="M15.8333 17.5L18.3333 15M18.3333 15L15.8333 12.5M18.3333 15H13.3333M10 12.9167H6.25C5.08703 12.9167 4.50554 12.9167 4.03238 13.0602C2.96704 13.3833 2.13336 14.2171 1.8102 15.2824C1.66666 15.7556 1.66666 16.337 1.66666 17.5M12.0833 6.25C12.0833 8.32107 10.4044 10 8.33333 10C6.26226 10 4.58333 8.32107 4.58333 6.25C4.58333 4.17893 6.26226 2.5 8.33333 2.5C10.4044 2.5 12.0833 4.17893 12.0833 6.25Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M15.8333 17.5L18.3333 15M18.3333 15L15.8333 12.5M18.3333 15H13.3333M10 12.9167H6.25C5.08703 12.9167 4.50554 12.9167 4.03238 13.0602C2.96704 13.3833 2.13336 14.2171 1.8102 15.2824C1.66666 15.7556 1.66666 16.337 1.66666 17.5M12.0833 6.25C12.0833 8.32107 10.4044 10 8.33333 10C6.26226 10 4.58333 8.32107 4.58333 6.25C4.58333 4.17893 6.26226 2.5 8.33333 2.5C10.4044 2.5 12.0833 4.17893 12.0833 6.25Z" stroke="currentColor" strokeWidth="1.6667" strokeLinecap="round" strokeLinejoin="round"/>
     </svg>
   );
 }

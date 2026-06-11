@@ -1,16 +1,18 @@
 import { clsx } from 'clsx';
+import { resolveIconSize, type IconSizeProp } from './_iconSize';
 
 export interface Code01IconProps {
-  size?: number;
+  size?: IconSizeProp;
   className?: string;
   'aria-label'?: string;
 }
 
-export function Code01Icon({ size = 20, className, ...props }: Code01IconProps) {
+export function Code01Icon({ size = 'md', className, ...props }: Code01IconProps) {
+  const px = resolveIconSize(size);
   return (
     <svg
-      width={size}
-      height={size}
+      width={px}
+      height={px}
       viewBox="0 0 20 20"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
@@ -18,7 +20,7 @@ export function Code01Icon({ size = 20, className, ...props }: Code01IconProps) 
       aria-hidden={!props['aria-label']}
       {...props}
     >
-      <path d="M13.3333 15L18.3333 10L13.3333 5M6.66666 5L1.66666 10L6.66666 15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M13.3333 15L18.3333 10L13.3333 5M6.66666 5L1.66666 10L6.66666 15" stroke="currentColor" strokeWidth="1.6667" strokeLinecap="round" strokeLinejoin="round"/>
     </svg>
   );
 }

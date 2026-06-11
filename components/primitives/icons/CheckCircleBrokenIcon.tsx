@@ -1,16 +1,18 @@
 import { clsx } from 'clsx';
+import { resolveIconSize, type IconSizeProp } from './_iconSize';
 
 export interface CheckCircleBrokenIconProps {
-  size?: number;
+  size?: IconSizeProp;
   className?: string;
   'aria-label'?: string;
 }
 
-export function CheckCircleBrokenIcon({ size = 20, className, ...props }: CheckCircleBrokenIconProps) {
+export function CheckCircleBrokenIcon({ size = 'md', className, ...props }: CheckCircleBrokenIconProps) {
+  const px = resolveIconSize(size);
   return (
     <svg
-      width={size}
-      height={size}
+      width={px}
+      height={px}
       viewBox="0 0 20 20"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
@@ -19,7 +21,7 @@ export function CheckCircleBrokenIcon({ size = 20, className, ...props }: CheckC
       {...props}
     >
       <g clipPath="url(#checkcirclebroken-clip0_118_36985)">
-<path d="M18.3334 9.23809V10.0048C18.3324 11.8018 17.7504 13.5503 16.6744 14.9896C15.5985 16.4289 14.0861 17.4818 12.3629 17.9913C10.6395 18.5008 8.79777 18.4397 7.11208 17.8169C5.42642 17.1942 3.98723 16.0432 3.00915 14.5357C2.03108 13.0282 1.56651 11.2448 1.68475 9.45167C1.80299 7.65858 2.49769 5.95171 3.66525 4.58567C4.83281 3.21962 6.41068 2.2676 8.16351 1.87156C9.91635 1.47553 11.7503 1.65672 13.3917 2.38811M18.3334 3.33334L10 11.675L7.50002 9.17501" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+<path d="M18.3334 9.23809V10.0048C18.3324 11.8018 17.7504 13.5503 16.6744 14.9896C15.5985 16.4289 14.0861 17.4818 12.3629 17.9913C10.6395 18.5008 8.79777 18.4397 7.11208 17.8169C5.42642 17.1942 3.98723 16.0432 3.00915 14.5357C2.03108 13.0282 1.56651 11.2448 1.68475 9.45167C1.80299 7.65858 2.49769 5.95171 3.66525 4.58567C4.83281 3.21962 6.41068 2.2676 8.16351 1.87156C9.91635 1.47553 11.7503 1.65672 13.3917 2.38811M18.3334 3.33334L10 11.675L7.50002 9.17501" stroke="currentColor" strokeWidth="1.6667" strokeLinecap="round" strokeLinejoin="round"/>
 </g>
 <defs>
 <clipPath id="checkcirclebroken-clip0_118_36985">

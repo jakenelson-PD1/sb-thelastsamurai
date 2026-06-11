@@ -1,16 +1,18 @@
 import { clsx } from 'clsx';
+import { resolveIconSize, type IconSizeProp } from './_iconSize';
 
 export interface Menu02IconProps {
-  size?: number;
+  size?: IconSizeProp;
   className?: string;
   'aria-label'?: string;
 }
 
-export function Menu02Icon({ size = 20, className, ...props }: Menu02IconProps) {
+export function Menu02Icon({ size = 'md', className, ...props }: Menu02IconProps) {
+  const px = resolveIconSize(size);
   return (
     <svg
-      width={size}
-      height={size}
+      width={px}
+      height={px}
       viewBox="0 0 20 20"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
@@ -18,7 +20,7 @@ export function Menu02Icon({ size = 20, className, ...props }: Menu02IconProps) 
       aria-hidden={!props['aria-label']}
       {...props}
     >
-      <path d="M2.5 10H12.5M2.5 5H17.5M2.5 15H17.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M2.5 10H12.5M2.5 5H17.5M2.5 15H17.5" stroke="currentColor" strokeWidth="1.6667" strokeLinecap="round" strokeLinejoin="round"/>
     </svg>
   );
 }
