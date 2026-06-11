@@ -1,10 +1,10 @@
 import { clsx } from 'clsx';
 import { cva, type VariantProps } from 'class-variance-authority';
 
-const alertVariants = cva('rounded-lg border p-4 text-sm', {
+const alertVariants = cva('rounded-card border p-4 text-body-md', {
   variants: {
     variant: {
-      info:    'border-status-info-border    bg-status-info-surface    text-status-info-fg',
+      info:    'border-status-info-border    bg-row-selected    text-status-info-fg',
       success: 'border-status-success-border bg-status-success-surface text-status-success-fg',
       warning: 'border-status-warning-border bg-status-warning-surface text-status-warning-fg',
       danger:  'border-status-error-border   bg-status-error-surface   text-status-error-fg',
@@ -16,7 +16,7 @@ const alertVariants = cva('rounded-lg border p-4 text-sm', {
 type AlertVariant = 'info' | 'success' | 'warning' | 'danger';
 
 const iconBgMap: Record<AlertVariant, string> = {
-  info:    'bg-status-info-surface text-status-info-fg',
+  info:    'bg-row-selected text-status-info-fg',
   success: 'bg-status-success-surface text-status-success-fg',
   warning: 'bg-status-warning-surface text-status-warning-fg',
   danger:  'bg-status-error-surface text-status-error-fg',
@@ -40,7 +40,7 @@ export function Alert({ variant, title, icon, action, children, className, ...pr
       {icon && (
         <span
           className={clsx(
-            'h-8 w-8 flex-shrink-0 rounded-full flex items-center justify-center',
+            'h-8 w-8 flex-shrink-0 rounded-pill flex items-center justify-center',
             iconBgMap[variant ?? 'info'],
           )}
         >
@@ -55,7 +55,7 @@ export function Alert({ variant, title, icon, action, children, className, ...pr
         <button
           type="button"
           onClick={action.onClick}
-          className="ml-auto flex-shrink-0 text-sm font-medium text-fg-link hover:underline"
+          className="ml-auto flex-shrink-0 text-body-sm font-medium text-link hover:underline"
         >
           {action.label}
         </button>

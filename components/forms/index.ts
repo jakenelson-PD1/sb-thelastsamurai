@@ -1,5 +1,3 @@
-export { Select } from './Select';
-export type { SelectProps, SelectOption } from './Select';
 export { Checkbox } from './Checkbox';
 export type { CheckboxProps } from './Checkbox';
 export { Radio } from './Radio';
@@ -8,3 +6,5 @@ export { Switch } from './Switch';
 export type { SwitchProps } from './Switch';
 export { DatePicker } from './DatePicker';
 export type { DatePickerProps } from './DatePicker';
+export { Search } from '../primitives/Search';
+export type { SearchProps } from '../primitives/Search';

@@ -42,7 +42,7 @@ export function Radio({ name, options, value, onChange, disabled, className }: R
               aria-hidden="true"
             />
           </span>
-          <span className="text-sm text-fg-secondary">{opt.label}</span>
+          <span className="text-body-md text-secondary">{opt.label}</span>
         </label>
       ))}
     </fieldset>
