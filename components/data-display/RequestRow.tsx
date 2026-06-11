@@ -1,24 +1,28 @@
 import { clsx } from 'clsx';
-import { iconSize } from '../../tokens/iconSizes';
 import { Avatar } from '../primitives/Avatar';
 import { Badge } from '../primitives/Badge';
+import { Button } from '../primitives/Button';
+import { Checkbox } from '../forms/Checkbox';
+import { StatusDot } from '../primitives/StatusDot';
+import { Timestamp } from '../primitives/Timestamp';
+import { HighPriorityFlag } from '../primitives/HighPriorityFlag';
 import { Tooltip } from '../overlay/Tooltip';
 import { renderStatus } from './statusUtils';
 import { PaperclipIcon } from '../primitives/icons/PaperclipIcon';
-import { Flag02Icon } from '../primitives/icons/Flag02Icon';
 import { MessageCircle01Icon } from '../primitives/icons/MessageCircle01Icon';
 import { File02Icon } from '../primitives/icons/File02Icon';
-import { Lock01Icon } from '../primitives/icons/Lock01Icon';
 
 export type StatusIndicator = 'fulfilled' | 'returned' | 'accepted' | 'outstanding' | 'none';
 
 export type MetaItem =
-  | { type: 'comments';    count: number; unread?: boolean; dot?: 'unread' | 'attention'; onClick?: () => void }
-  | { type: 'documents';   count: number; unread?: boolean; dot?: 'unread' | 'attention'; onClick?: () => void }
+  // `dot` drives the read-state styling: present (unread/attention) → dark icon
+  // + count; absent (read) → muted. Same pattern as FileRow.
+  | { type: 'comments';    count: number; dot?: 'unread' | 'attention'; onClick?: () => void }
+  | { type: 'documents';   count: number; dot?: 'unread' | 'attention'; onClick?: () => void }
   | { type: 'flag';                                                                onClick?: () => void }
-  | { type: 'assignee';    initials: string; color?: string; textColor?: string; locked?: boolean; onClick?: () => void }
+  | { type: 'assignee';    initials: string; color?: string; textColor?: string; onClick?: () => void }
   | { type: 'due-date';    date: string;                                           onClick?: () => void }
-  | { type: 'e-signature' };
+  | { type: 'e-signature'; onClick?: () => void };
 
 export interface RequestRowProps {
   orderNumber: number;
@@ -29,6 +33,16 @@ export interface RequestRowProps {
   onAttachmentClick?: () => void;
   meta?: MetaItem[];
   selected?: boolean;
+  /**
+   * Whether the row is "checked" for bulk operations. Independent from
+   * `selected` (which controls expansion/highlight). Clicking the checkbox
+   * toggles only this state — the row's expansion is untouched.
+   */
+  checked?: boolean;
+  /** Called when the row checkbox is toggled. */
+  onCheckedChange?: (checked: boolean) => void;
+  /** Force the hover background for static showcase rendering (Matrix stories). */
+  forceHover?: boolean;
   onClick?: () => void;
   className?: string;
 }
@@ -43,26 +57,15 @@ const STATUS_TOOLTIP: Record<StatusIndicator, string> = {
 
 function statusDot(dot?: 'unread' | 'attention') {
   if (!dot) return null;
-  return (
-    <span
-      className="absolute -top-1 -right-1 h-2 w-2 rounded-full ring-1 ring-canvas"
-      style={{ backgroundColor: dot === 'unread' ? 'var(--color-dot-unread)' : 'var(--color-dot-attention)' }}
-    />
-  );
+  // Canonical StatusDot — overlaps the meta icon's top-right with a canvas halo.
+  return <StatusDot variant={dot} className="absolute -top-1 -right-1 ring-1 ring-canvas" />;
 }
 
-const metaButtonBase = 'relative z-10 inline-flex items-center justify-center py-1 transition-colors hover:bg-recessed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-action-primary';
-
-function metaButton(onClick: (() => void) | undefined, className: string, children: React.ReactNode): JSX.Element {
-  return (
-    <button
-      type="button"
-      onClick={(e) => { e.stopPropagation(); onClick?.(); }}
-      className={clsx(metaButtonBase, className)}
-    >
-      {children}
-    </button>
-  );
+// Common wrapper for meta-button click handlers: stop event propagation so
+// clicks on individual meta controls don't fall through to the row-level
+// selection handler.
+function withStopPropagation(onClick?: () => void) {
+  return (e: React.MouseEvent) => { e.stopPropagation(); onClick?.(); };
 }
 
 // Lookup type: each MetaItem type maps to its specific variant
@@ -77,6 +80,9 @@ export function RequestRow({
   onAttachmentClick,
   meta = [],
   selected = false,
+  checked = false,
+  onCheckedChange,
+  forceHover = false,
   onClick,
   className,
 }: RequestRowProps) {
@@ -100,37 +106,59 @@ export function RequestRow({
         if (e.key === ' ') { e.preventDefault(); onClick?.(); }
       }}
       className={clsx(
-        'relative flex items-center gap-3 border-l-2 border-b border-b-line px-3 py-1 min-h-10',
+        'relative flex items-center gap-3 border-l-2 border-b border-b-line pl-3 pr-2 py-1',
+        // Figma fixes row height per state: 40 for Default/Hover, 50 for Selected.
+        selected ? 'min-h-[50px]' : 'min-h-10',
         'select-none',
         onClick ? 'cursor-pointer' : '',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-action-primary',
         selected
-          ? 'bg-row-selected-bg border-l-row-selected-border hover:bg-row-selected-bg'
-          : 'bg-row-bg border-l-transparent hover:bg-row-hover-bg',
+          ? 'bg-row-selected border-l-action-primary hover:bg-row-selected'
+          : forceHover
+            ? 'bg-surface border-l-transparent'
+            : 'bg-elevated border-l-transparent hover:bg-surface',
         className,
       )}
     >
 
-      {/* Left zone — status icon + order number */}
+      {/* Left zone — checkbox + status icon + order number.
+          The checkbox is for bulk-selection across many rows. It's independent
+          from `selected` (which expands the row). Click is stopped from
+          bubbling so toggling the checkbox doesn't also toggle row expansion. */}
       <div className="relative z-10 flex items-center gap-3 shrink-0">
+        <span
+          onClick={(e) => e.stopPropagation()}
+          onKeyDown={(e) => {
+            // Space normally toggles row selection — let the checkbox itself
+            // handle Space when focus is inside its input.
+            if (e.key === ' ') e.stopPropagation();
+          }}
+          className="inline-flex"
+        >
+          <Checkbox
+            checked={checked}
+            onChange={(e) => onCheckedChange?.(e.target.checked)}
+            aria-label={`Select request ${orderNumber}`}
+          />
+        </span>
         {statusTooltipText
           ? <Tooltip content={statusTooltipText}>{statusEl}</Tooltip>
           : statusEl
         }
-        <span aria-hidden="true" className="text-body-sm font-bold text-fg-primary">{orderNumber}</span>
+        <span aria-hidden="true" className="text-body-sm font-bold text-primary">{orderNumber}</span>
       </div>
 
       {/* Main zone */}
       <div className="relative z-10 flex-1 min-w-0 flex flex-col justify-center gap-0">
         {/* Row 1: title + optional attachment */}
         <div className="flex items-center gap-3 min-w-0 flex-1">
-          <span className="text-body-sm font-medium text-fg-primary truncate shrink min-w-0">
+          <span className="text-body-sm font-medium text-primary truncate shrink min-w-0">
             {title}
           </span>
           {attachmentLabel && (
             <button
               type="button"
-              className="flex items-center gap-1 text-label-sm text-fg-link shrink-0 underline hover:no-underline"
+              className="flex items-center gap-1 text-label-sm text-link shrink-0 underline hover:no-underline"
               onClick={(e) => { e.stopPropagation(); onAttachmentClick?.(); }}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
@@ -140,7 +168,7 @@ export function RequestRow({
                 }
               }}
             >
-              <PaperclipIcon size={iconSize.sm} />
+              <PaperclipIcon size="sm" />
               {attachmentLabel}
             </button>
           )}
@@ -148,140 +176,151 @@ export function RequestRow({
 
         {/* Row 2: description (selected only) */}
         {selected && description && (
-          <p className="text-label-sm text-fg-muted truncate">{description}</p>
+          <p className="text-label-sm text-muted truncate">{description}</p>
         )}
       </div>
 
-      {/* Right zone — 6 fixed columns, always in the same order
-          E-Sig 88px · Assignee 32px · Due Date 80px · Comments 44px · Documents 44px · Flag 32px
-          Total slot width: 320px + 12px left padding = 332px */}
-      <div className="relative z-10 flex gap-0 items-center shrink-0 pl-3 ml-auto">
+      {/* Right zone — fixed-column grid sized exactly to each attribute's
+          max content width so visible spacing equals the column gap. Every
+          attribute keeps its dedicated slot. 8px between columns.
+          Order: E-Sig → Assignee → Due Date → [Comments + Documents] → Flag.
+          Comments and Documents share a single grid cell with 0px between
+          them — they read as a paired meta unit. */}
+      <div className="relative z-10 grid grid-cols-[88px_32px_76px_82px_24px] gap-2 items-center shrink-0 pl-3">
 
-        {/* E-Signature — 88px */}
-        <div
-          className="shrink-0 flex items-center justify-center"
-          style={{ width: 88 }}
-          aria-hidden={!metaByType['e-signature'] ? true : undefined}
-        >
+        {/* Col 1 — E-Signature (bare Badge — matches Figma. The Button wrapper
+            added no visual, only a click affordance, so it's dropped: this is a
+            display-only status pill.) */}
+        <div className="flex items-center justify-end">
           {metaByType['e-signature'] && (
-            <Badge variant="cerulean">E-Signature</Badge>
+            <Tooltip content="E-signature required">
+              <Badge variant="cerulean" className="relative z-10">E-Signature</Badge>
+            </Tooltip>
           )}
         </div>
 
-        {/* Assignee — 32px */}
-        <div
-          className="shrink-0 flex items-center justify-center"
-          style={{ width: 32 }}
-          aria-hidden={!metaByType['assignee'] ? true : undefined}
-        >
+        {/* Col 2 — Assignee (bare Avatar — matches Figma; no Button wrapper.
+            Display-only; the row itself handles selection clicks.) */}
+        <div className="flex items-center justify-end">
           {metaByType['assignee'] && (() => {
             const item = metaByType['assignee']!;
             return (
               <Tooltip content={`Assignee: ${item.initials}`}>
-                {metaButton(item.onClick, 'rounded-full px-1',
-                  <span className="relative inline-flex">
-                    <Avatar
-                      size="xs"
-                      initials={item.initials}
-                      style={item.color ? { backgroundColor: item.color, color: item.textColor } : undefined}
-                    />
-                    {item.locked && (
-                      <span className="absolute -bottom-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-elevated">
-                        <Lock01Icon size={iconSize.sm} className="text-fg-muted" />
-                      </span>
-                    )}
-                  </span>
-                )}
+                <span className="relative z-10 inline-flex">
+                  <Avatar
+                    size="xs"
+                    initials={item.initials}
+                    style={item.color ? { backgroundColor: item.color, color: item.textColor } : undefined}
+                  />
+                </span>
               </Tooltip>
             );
           })()}
         </div>
 
-        {/* Due Date — 80px */}
-        <div
-          className="shrink-0 flex items-center justify-center"
-          style={{ width: 80 }}
-          aria-hidden={!metaByType['due-date'] ? true : undefined}
-        >
+        {/* Col 3 — Due Date (canonical Timestamp, matches Figma's Timestamp
+            instance). Body MD / fg-secondary. Wrapped in a clickable span only
+            when an onClick is supplied so the affordance is preserved without
+            re-introducing a Button. */}
+        <div className="flex items-center justify-end">
           {metaByType['due-date'] && (() => {
             const item = metaByType['due-date']!;
+            const ts = (
+              <Timestamp
+                date={item.date}
+                format="date"
+                className="relative z-10 text-body-md text-secondary"
+              />
+            );
             return (
               <Tooltip content="Due date">
-                {metaButton(item.onClick,
-                  'px-1 rounded-control text-label-md font-medium text-fg-secondary',
-                  <>{item.date}</>
-                )}
+                {item.onClick ? (
+                  <span
+                    role="button"
+                    tabIndex={0}
+                    className="relative z-10 inline-flex cursor-pointer"
+                    onClick={withStopPropagation(item.onClick)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        item.onClick?.();
+                      }
+                    }}
+                  >
+                    {ts}
+                  </span>
+                ) : ts}
               </Tooltip>
             );
           })()}
         </div>
 
-        {/* Comments — 44px */}
-        <div
-          className="shrink-0 flex items-center justify-center"
-          style={{ width: 44 }}
-          aria-hidden={!metaByType['comments'] ? true : undefined}
-        >
+        {/* Col 4 — Comments + Documents (paired, 0px between). Each lives in
+            its own 41px sub-slot so an attribute's position is stable even
+            when its partner is missing. */}
+        <div className="grid grid-cols-[41px_41px] items-center">
+          <div className="flex items-center">
           {metaByType['comments'] && (() => {
             const item = metaByType['comments']!;
             const displayCount = item.count > 99 ? '99+' : item.count;
             return (
               <Tooltip content={`${item.count} comment${item.count !== 1 ? 's' : ''}`}>
-                {metaButton(item.onClick,
-                  'gap-1 px-1 rounded-control text-label-md',
-                  <span className="contents" style={item.unread ? { color: 'var(--color-meta-unread)' } : undefined}>
+                <Button
+                  variant="ghost"
+                  size="xxs"
+                  // `!` overrides the ghost variant's default text-secondary so
+                  // the dot's read-state color actually wins (icon + count).
+                  className={clsx('relative z-10 w-[41px]', item.dot ? '!text-primary' : '!text-muted')}
+                  onClick={withStopPropagation(item.onClick)}
+                  startIcon={
                     <span className="relative inline-flex">
-                      <MessageCircle01Icon size={iconSize.sm} className={item.unread ? undefined : 'text-fg-muted'} />
+                      <MessageCircle01Icon size="sm" />
                       {item.dot === 'unread' && statusDot('unread')}
                     </span>
-                    <span className={item.unread ? undefined : 'text-fg-muted'}>{displayCount}</span>
-                  </span>
-                )}
+                  }
+                >
+                  {displayCount}
+                </Button>
               </Tooltip>
             );
           })()}
-        </div>
-
-        {/* Documents — 44px */}
-        <div
-          className="shrink-0 flex items-center justify-center"
-          style={{ width: 44 }}
-          aria-hidden={!metaByType['documents'] ? true : undefined}
-        >
+          </div>
+          <div className="flex items-center">
           {metaByType['documents'] && (() => {
             const item = metaByType['documents']!;
             const displayCount = item.count > 99 ? '99+' : item.count;
             return (
               <Tooltip content={`${item.count} document${item.count !== 1 ? 's' : ''}`}>
-                {metaButton(item.onClick,
-                  'gap-1 px-1 rounded-control text-label-md',
-                  <span className="contents" style={item.unread ? { color: 'var(--color-meta-unread)' } : undefined}>
+                <Button
+                  variant="ghost"
+                  size="xxs"
+                  className={clsx('relative z-10 w-[41px]', item.dot ? '!text-primary' : '!text-muted')}
+                  onClick={withStopPropagation(item.onClick)}
+                  startIcon={
                     <span className="relative inline-flex">
-                      <File02Icon size={iconSize.sm} className={item.unread ? undefined : 'text-fg-muted'} />
+                      <File02Icon size="sm" />
                       {statusDot(item.dot)}
                     </span>
-                    <span className={item.unread ? undefined : 'text-fg-muted'}>{displayCount}</span>
-                  </span>
-                )}
+                  }
+                >
+                  {displayCount}
+                </Button>
               </Tooltip>
             );
           })()}
+          </div>
         </div>
 
-        {/* Flag — 32px */}
-        <div
-          className="shrink-0 flex items-center justify-center"
-          style={{ width: 32 }}
-          aria-hidden={!metaByType['flag'] ? true : undefined}
-        >
+        {/* Col 5 — Flag (canonical HighPriorityFlag — filled purple pill). */}
+        <div className="flex items-center justify-end">
           {metaByType['flag'] && (() => {
             const item = metaByType['flag']!;
             return (
-              <Tooltip content="High priority">
-                {metaButton(item.onClick, 'rounded-control px-1 text-status-purple-fg',
-                  <Flag02Icon size={iconSize.sm} />
-                )}
-              </Tooltip>
+              <HighPriorityFlag
+                className="relative z-10"
+                onClick={withStopPropagation(item.onClick)}
+              />
             );
           })()}
         </div>

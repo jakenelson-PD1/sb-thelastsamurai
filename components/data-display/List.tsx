@@ -8,9 +8,9 @@ export function List({ items, className }: ListProps) {
     <ul className={clsx('divide-y divide-line', className)}>
       {items.map((item) => (
         <li key={item.id} className="flex flex-col px-4 py-3">
-          <span className="text-sm font-medium text-fg-primary">{item.primary}</span>
+          <span className="text-body-md font-medium text-primary">{item.primary}</span>
           {item.secondary && (
-            <span className="text-xs text-fg-muted">{item.secondary}</span>
+            <span className="text-label-md text-muted">{item.secondary}</span>
           )}
         </li>
       ))}

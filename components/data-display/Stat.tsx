@@ -20,13 +20,13 @@ export function Stat({
       ? 'text-status-success-fg'
       : changeType === 'negative'
       ? 'text-status-error-fg'
-      : 'text-fg-muted';
+      : 'text-muted';
 
   return (
     <div className={clsx('flex flex-col gap-1', className)} {...props}>
-      <p className="text-xs font-medium uppercase tracking-wide text-fg-muted">{label}</p>
-      <p className="text-3xl font-bold text-fg-primary">{value}</p>
-      {change && <p className={clsx('text-sm', changeColor)}>{change}</p>}
+      <p className="text-label-md font-medium uppercase tracking-wide text-muted">{label}</p>
+      <p className="text-display-lg font-bold text-primary">{value}</p>
+      {change && <p className={clsx('text-body-md', changeColor)}>{change}</p>}
     </div>
   );
 }

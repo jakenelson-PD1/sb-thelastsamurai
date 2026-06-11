@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { clsx } from 'clsx';
-import { iconSize } from '../../tokens/iconSizes';
 import { ChevronDownIcon } from '../primitives/icons/ChevronDownIcon';
 
 export type AccordionSize = 'sm' | 'md' | 'lg';
@@ -11,10 +10,17 @@ const headerSizeMap: Record<AccordionSize, string> = {
   lg: 'h-10 px-4 gap-3',
 };
 
+// Each entry is a complete, valid Type Scale style (size + weight), matching the
+// Figma Accordion ComponentSet's title per size:
+//   sm → Label SM (11px Medium)
+//   md → Body SM Medium (13px Medium)
+//   lg → Body MD Strong (14px Semibold)
+// A blanket `font-semibold` here previously produced invalid styles
+// ("Body SM Semibold", "Label SM Semibold") that don't exist in the Type Scale.
 const titleSizeMap: Record<AccordionSize, string> = {
-  sm: 'text-label-sm',
-  md: 'text-body-sm',
-  lg: 'text-body-md',
+  sm: 'text-label-sm font-medium',
+  md: 'text-body-sm font-medium',
+  lg: 'text-body-md font-semibold',
 };
 
 export interface AccordionItemProps {
@@ -22,8 +28,15 @@ export interface AccordionItemProps {
   children: React.ReactNode;
   defaultOpen?: boolean;
   size?: AccordionSize;
-  /** Extra content rendered between the title and the chevron (e.g. avatar stack) */
+  /**
+   * Header actions slot — content rendered between the title and the chevron.
+   * Use this for any controls that belong on the right side of the header:
+   * buttons, dropdowns, inputs, avatar stacks, badges, or any combination
+   * (wrap multiple in a fragment).
+   */
   extra?: React.ReactNode;
+  /** Hide the trailing chevron icon. Mirrors Figma's `Chevron=Hide` variant. */
+  showChevron?: boolean;
   /** Pin the header with sticky positioning (top-0) while content scrolls */
   sticky?: boolean;
   /** Override the top offset for sticky positioning (default: 'top-0') */
@@ -43,6 +56,7 @@ export function AccordionItem({
   defaultOpen = false,
   size = 'md',
   extra,
+  showChevron = true,
   sticky = false,
   stickyTop = 'top-0',
   className,
@@ -51,8 +65,9 @@ export function AccordionItem({
   const [open, setOpen] = useState(defaultOpen);
 
   return (
-    // Outer wrapper owns the top + bottom border so standalone items are fully framed
-    <div className={clsx('w-full border-t border-b border-line', className)}>
+    // Borderless — the accordion has no frame of its own; consumers add
+    // separators/borders around it if needed.
+    <div className={clsx('w-full', className)}>
       {/* Header */}
       <button
         type="button"
@@ -62,24 +77,26 @@ export function AccordionItem({
           'relative flex w-full items-center border-l-2 border-transparent',
           headerSizeMap[size],
           'select-none text-left',
-          'bg-recessed hover:bg-accordion-hover',
+          'bg-recessed hover:bg-pressed',
           'transition-colors',
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-action-primary',
           sticky && `sticky ${stickyTop} z-20`,
         )}
       >
-        <span className={clsx('font-semibold text-fg-heading', titleSizeMap[size])}>
+        <span className={clsx('text-primary', titleSizeMap[size])}>
           {title}
         </span>
         {extra && <span className="flex items-center gap-1 ml-2">{extra}</span>}
         <span className="flex-1" />
-        <ChevronDownIcon
-          size={iconSize.sm}
-          className={clsx(
-            'shrink-0 text-fg-muted transition-transform duration-200',
-            open && 'rotate-180',
-          )}
-        />
+        {showChevron && (
+          <ChevronDownIcon
+            size="sm"
+            className={clsx(
+              'shrink-0 text-muted transition-transform duration-200',
+              open && 'rotate-180',
+            )}
+          />
+        )}
       </button>
 
       {/* Animated content panel — border-t separates header from content when open */}
@@ -87,7 +104,7 @@ export function AccordionItem({
         className="grid transition-[grid-template-rows] duration-200 ease-in-out"
         style={{ gridTemplateRows: open ? '1fr' : '0fr' }}
       >
-        <div className={clsx('overflow-hidden', open && 'border-t border-line')}>
+        <div className="overflow-hidden">
           {children}
         </div>
       </div>
@@ -103,9 +120,8 @@ export function Accordion({
   className?: string;
 }) {
   return (
-    // [&>*+*]:border-t-0 collapses the redundant top border on items 2+ so
-    // consecutive items share a single 1px line instead of a 2px double border.
-    <div className={clsx('[&>*+*]:border-t-0', className)}>
+    // Borderless accordion group — items have no frame of their own.
+    <div className={clsx(className)}>
       {children}
     </div>
   );
