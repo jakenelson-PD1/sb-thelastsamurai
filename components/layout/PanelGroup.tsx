@@ -6,12 +6,14 @@ export type PanelGroupProps = {
   children?: ReactNode;
   className?: string;
   id?: string;
+  /** Orientation of the panel group. Defaults to `horizontal` (panels side-by-side). */
+  direction?: 'horizontal' | 'vertical';
 };
 
-export function PanelGroup({ children, className, id }: PanelGroupProps) {
+export function PanelGroup({ children, className, id, direction = 'horizontal' }: PanelGroupProps) {
   return (
     <Group
-      orientation="horizontal"
+      orientation={direction}
       id={id}
       className={clsx('flex h-full w-full', className)}
     >

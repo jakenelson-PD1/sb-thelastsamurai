@@ -19,14 +19,14 @@ export function Panel({ children, className, closeable, onClose, title, ...props
       {hasHeader && (
         <div className="flex items-center justify-between border-b border-line px-3 py-2">
           {title && (
-            <span className="text-label-sm font-semibold text-fg-secondary">{title}</span>
+            <span className="text-label-sm font-semibold text-secondary">{title}</span>
           )}
           {!title && <span />}
           {closeable && onClose && (
             <button
               type="button"
               onClick={onClose}
-              className="flex items-center justify-center rounded text-fg-muted hover:text-fg-primary transition-colors"
+              className="flex items-center justify-center rounded-control text-muted hover:text-primary transition-colors"
               aria-label="Close panel"
             >
               <X size={14} />

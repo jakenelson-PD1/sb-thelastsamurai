@@ -25,6 +25,8 @@ export interface MasterDetailLayoutProps {
   listDefaultSize?: number;
   /** Minimum width % of list panel. Default: 15 */
   listMinSize?: number;
+  /** Default width % of detail panel. Default: remainder after list */
+  detailDefaultSize?: number;
   /** autoSaveId for persisting panel widths in localStorage */
   autoSaveId?: string;
   className?: string;
@@ -37,6 +39,7 @@ export function MasterDetailLayout({
   onClosePanel,
   listDefaultSize = 22,
   listMinSize = 15,
+  detailDefaultSize,
   className,
 }: MasterDetailLayoutProps) {
   return (
@@ -48,7 +51,7 @@ export function MasterDetailLayout({
 
         <ResizeHandle />
 
-        <Panel>
+        <Panel defaultSize={detailDefaultSize ?? (100 - listDefaultSize)}>
           {detail}
         </Panel>
 
