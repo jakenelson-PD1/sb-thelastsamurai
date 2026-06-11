@@ -108,6 +108,17 @@ export const semanticPlugin = plugin(
         '--color-request-status-fulfilled':   colors.green[300],
         '--color-request-status-overdue':     colors.red[300],
 
+        // ── Deprecated aliases for legacy `swatch/*` token names ─────
+        // The semantic reorg renamed `swatch/*` → `request-status/*`. These
+        // aliases keep downstream consumers (Suralink production app, any
+        // `var(--color-swatch-*)` references in stories or external code)
+        // working without code changes. Safe to remove in a future major
+        // once all consumers migrate to `var(--color-request-status-*)`.
+        '--color-swatch-not-started': 'var(--color-request-status-not-started)',
+        '--color-swatch-outstanding': 'var(--color-request-status-outstanding)',
+        '--color-swatch-fulfilled':   'var(--color-request-status-fulfilled)',
+        '--color-swatch-overdue':     'var(--color-request-status-overdue)',
+
         // ── Status accents (icons / strong colors / small dots) ──────
         // Note: status/outstanding folded into action/primary — see action/.
         // success/warning/error were already at -500; absorbed the matching
