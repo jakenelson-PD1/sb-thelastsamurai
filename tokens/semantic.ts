@@ -96,6 +96,18 @@ export const semanticPlugin = plugin(
         '--color-action-attention-destructive-hover': colors.red[600],
         '--color-action-selected':               colors.brand[50],
 
+        // ── Deprecated aliases for legacy action/* token names ───────
+        // The semantic reorg renamed several action/ tokens to bake the
+        // primitive shade into the name. These aliases keep downstream
+        // consumers (Suralink production app, in-repo stories) working
+        // without code changes. Safe to remove in a future major once
+        // all consumers migrate to the -500/-600 canonical names.
+        '--color-action-primary':       'var(--color-action-primary-500)',
+        '--color-action-primary-hover': 'var(--color-action-primary-hover-600)',
+        '--color-action-danger':        'var(--color-action-destructive)',
+        '--color-action-danger-hover':  'var(--color-action-destructive-hover)',
+        '--color-action-notification':  'var(--color-action-attention-destructive)',
+
         // ── (former indicator/* group ─ now lives in status/* + action/) ──
         // All small status indicators bumped to -500 to match the rest of the
         // system; brand/success/warning/error folded into existing action +
