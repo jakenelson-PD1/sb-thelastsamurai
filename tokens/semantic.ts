@@ -1,422 +1,431 @@
 import plugin from 'tailwindcss/plugin';
 import { colors } from './colors';
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Semantic tokens — universal role-first architecture.
+//
+// CSS var naming: `--color-<group>-<role>` (e.g. `--color-surface-canvas-50`,
+// `--color-text-primary`, `--color-border-default`). Surfaces use the
+// `canvas-{shade}` convention to surface the underlying primitive in the
+// var name (mirrors Figma's Semantic collection naming).
+// Tailwind class names use the SHORT role since the utility prefix already
+// implies the group (e.g. `text-primary` not `text-text-primary`,
+// `bg-canvas` not `bg-surface-canvas`). Borders use `line` as the alias
+// (`border-line`, `ring-line-focus`) rather than `border-default` — keeps
+// the class names ergonomic without the awkward `border-border-default`.
+//
+// Group taxonomy (industry-conventional — M3 / Carbon / Primer aligned):
+//   surface/    — backgrounds (canvas, surface, elevated, recessed, pressed,
+//                 row-selected, scrollbar, notification, scrim, hover-overlay,
+//                 *-surface). `surface/default` (bg-surface) doubles as the
+//                 row-hover state — same subtle gray, no extra token needed.
+//   text/       — text + icon colors (heading, primary, secondary, muted,
+//                 link, on-accent, tile-flag, *-fg)
+//   border/     — strokes (default, strong, focus, row-selected, *-border)
+//   action/     — interactive primary (primary, primary-hover)
+//   status/     — status colors at -500 (success/warning/error/error-hover/
+//                 attention/cerulean/purple/pink/eggplant) + surface triples
+//                 for info/success/warning/error/cerulean/orange/pink/eggplant/
+//                 purple. Each flat -500 token doubles as the small-dot color.
+//   swatch/     — large status color swatches (not-started/fulfilled/
+//                 outstanding/overdue) — fills FilterSwatch / StatusTile
+//
+// (No dedicated header/ or sidenav/ groups — both fold into surface/.
+//  surface/header-* covers the top header chrome (always-dark, light=brand-navy /
+//  dark=near-black). surface/sidenav-* aliases surface/header-bg so a dark
+//  sidebar reads identically. Tailwind class names stay short — `bg-header-bg`,
+//  `bg-sidenav-surface` — for consumer ergonomics.)
+// ─────────────────────────────────────────────────────────────────────────────
 export const semanticPlugin = plugin(
   function ({ addBase }) {
     addBase({
-      // Scrollbar utility — applied via .scroll-area class
+      // Scrollbar utility — applied via .scroll-area class.
+      // Uses surface-canvas-300 (= neutral/300) for both light + dark thumb.
       '.scroll-area': {
         'scrollbar-width': 'thin',
-        'scrollbar-color': 'var(--color-scrollbar-thumb) var(--color-scrollbar-track)',
+        'scrollbar-color': 'var(--color-surface-canvas-300) transparent',
         '&::-webkit-scrollbar': { width: '6px', height: '6px' },
-        '&::-webkit-scrollbar-track': { background: 'var(--color-scrollbar-track)' },
+        '&::-webkit-scrollbar-track': { background: 'transparent' },
         '&::-webkit-scrollbar-thumb': {
-          background: 'var(--color-scrollbar-thumb)',
+          background: 'var(--color-surface-canvas-300)',
           'border-radius': '3px',
         },
       },
       ':root': {
-        // Backgrounds
-        '--color-bg-canvas':    colors.neutral[50],
-        '--color-bg-surface':   colors.neutral[100],
-        '--color-bg-elevated':  '#ffffff',
-        '--color-bg-recessed':  colors.neutral[200],
-        '--color-bg-hover':     colors.neutral[100],
-        '--color-bg-active':    colors.neutral[200],
+        // ── Surfaces ─────────────────────────────────────────────────
+        // CSS vars use the `canvas-{shade}` naming to surface the underlying
+        // primitive shade directly in the variable name (mirrors Figma).
+        // Tailwind aliases below keep the role-based class names
+        // (bg-canvas, bg-surface, bg-elevated, bg-recessed, bg-pressed,
+        // bg-row-selected, bg-scrollbar) for consumer ergonomics.
+        // Full neutral ramp surfaces (canvas-50..500); -300/-400/-500 added
+        // to give designers the full picker for tile/divider/text-on-light
+        // contexts. The light values just alias the neutral primitives.
+        '--color-surface-canvas-0':        '#ffffff',
+        '--color-surface-canvas-50':       colors.neutral[50],
+        '--color-surface-canvas-100':      colors.neutral[100],
+        '--color-surface-canvas-200':      colors.neutral[200],
+        '--color-surface-canvas-300':      colors.neutral[300],
+        '--color-surface-canvas-400':      colors.neutral[400],
+        '--color-surface-canvas-500':      colors.neutral[500],
+        '--color-surface-hover-overlay':   'rgba(0, 0, 0, 0.08)',
+        '--color-surface-scrim':           'rgba(0, 0, 0, 0.40)',
 
-        // Accordion header hover — darker than recessed in light mode
-        '--color-accordion-hover': colors.neutral[300],
+        // ── Text ─────────────────────────────────────────────────────
+        // Names carry the underlying primitive shade (mirrors Figma).
+        '--color-text-primary-900':     colors.neutral[900],
+        '--color-text-secondary-700':   colors.neutral[700],
+        '--color-text-tertiary-500':    colors.neutral[500],
+        '--color-text-icon-800':        colors.neutral[800],
+        '--color-text-white-0':         '#ffffff',
+        '--color-text-link':            colors.brand[600],
 
-        // Request row states
-        '--color-row-bg':              '#ffffff',
-        '--color-row-hover-bg':        colors.neutral[100],
-        '--color-row-selected-bg':     colors.brand[50],
-        '--color-row-selected-border': colors.brand[500],
+        // ── Borders ──────────────────────────────────────────────────
+        '--color-border-default':       colors.neutral[200],
+        '--color-border-strong':        colors.neutral[300],
+        '--color-border-focus':         colors.brand[300],
+        '--color-border-info-border':   colors.brand[200],
 
-        // Unread dot
-        '--color-dot-unread':     colors.brand[500],
-        '--color-dot-attention':  colors.orange[600],
+        // ── Action (interactive surfaces — button states + accents) ─
+        '--color-action-primary-500':            colors.brand[500],
+        '--color-action-primary-hover-600':      colors.brand[600],
+        '--color-action-primary-selected-700':   colors.brand[700],
+        '--color-action-destructive':            'var(--color-accent-red)',
+        '--color-action-destructive-hover':      colors.red[600],
+        '--color-action-attention-destructive':       colors.red[500],
+        '--color-action-attention-destructive-hover': colors.red[600],
+        '--color-action-selected':               colors.brand[50],
 
-        // Tile flag icon color
-        '--color-tile-flag': colors.neutral[800],
+        // ── (former indicator/* group ─ now lives in status/* + action/) ──
+        // All small status indicators bumped to -500 to match the rest of the
+        // system; brand/success/warning/error folded into existing action +
+        // status flat accents; cerulean/purple/pink/eggplant/attention moved
+        // into status/* as flat accents (joining success/warning/error).
 
-        // Meta unread emphasis
-        '--color-meta-unread': colors.neutral[700],
+        // ── Tiles (large status swatches) ────────────────────────────
+        '--color-request-status-not-started': colors.brand[100],
+        '--color-request-status-outstanding': colors.yellow[300],
+        '--color-request-status-fulfilled':   colors.green[300],
+        '--color-request-status-overdue':     colors.red[300],
 
-        // Foreground / text
-        '--color-fg-heading':   colors.neutral[900],
-        '--color-fg-primary':   colors.neutral[900],
-        '--color-fg-secondary': colors.neutral[700],
-        '--color-fg-muted':     colors.neutral[500],
-        '--color-fg-link':      colors.brand[600],
-        '--color-fg-on-accent': '#ffffff',
+        // ── Status accents (icons / strong colors / small dots) ──────
+        // Note: status/outstanding folded into action/primary — see action/.
+        // success/warning/error were already at -500; absorbed the matching
+        // indicator/* tokens of the same hue. attention/cerulean/purple/
+        // pink/eggplant moved here from indicator/* (now at -500).
+        '--color-accent-green':     colors.green[500],
+        '--color-accent-yellow':     colors.yellow[500],
+        '--color-accent-red':       colors.red[500],
+        '--color-accent-orange':   colors.orange[500],
+        '--color-accent-cerulean':    colors.cerulean[500],
+        '--color-accent-purple':      colors.purple[500],
+        '--color-accent-pink':        colors.pink[500],
+        '--color-accent-eggplant':    colors.eggplant[500],
 
-        // Borders
-        '--color-line':        colors.neutral[200],
-        '--color-line-strong': colors.neutral[300],
-        '--color-line-focus':  colors.brand[500],
+        // (Info: accent/info-border moved to border/info-border above.
+        //  accent/info-fg folded into action/primary-hover-600 — brand-600
+        //  serves both link-text and info-callout text roles.)
 
-        // Actions
-        '--color-action-primary':       colors.brand[500],
-        '--color-action-primary-hover': colors.brand[600],
+        // ── Status surfaces — success ────────────────────────────────
+        '--color-accent-green-surface': colors.green[50],
+        '--color-accent-green-border':  colors.green[200],
+        '--color-accent-green-fg':      colors.green[700],
 
-        // Outstanding status icon — matches tile-not-started
-        '--color-status-outstanding': colors.brand[500],
+        // ── Status surfaces — warning ────────────────────────────────
+        '--color-accent-yellow-surface': colors.yellow[50],
+        '--color-accent-yellow-border':  colors.yellow[200],
+        '--color-accent-yellow-fg':      colors.yellow[700],
 
-        // Navigation (always dark — brand navy in light)
-        '--color-nav-bg':           colors.brand[950],
-        '--color-nav-border':       colors.neutral[400],
-        '--color-nav-active-bg':    colors.brand[800],
-        '--color-nav-text':         colors.neutral[300],
-        '--color-nav-hover-bg':     'rgba(255,255,255,0.08)',
+        // ── Status surfaces — error ──────────────────────────────────
+        '--color-accent-red-surface': colors.red[50],
+        '--color-accent-red-border':  colors.red[200],
+        '--color-accent-red-fg':      colors.red[700],
 
-        // Sidebar chrome — flips by theme attribute, not by .dark class
-        '--color-sidenav-surface':          '#ffffff',
-        '--color-sidenav-surface-hover':    colors.neutral[100],
-        '--color-sidenav-surface-elevated': colors.neutral[200],
-        '--color-sidenav-border':           colors.neutral[200],
-        '--color-sidenav-fg-primary':       colors.neutral[900],
-        '--color-sidenav-fg-secondary':     colors.neutral[700],
-        '--color-sidenav-fg-muted':         colors.neutral[500],
+        // ── Status surfaces — cerulean ───────────────────────────────
+        '--color-accent-cerulean-surface': colors.cerulean[50],
+        '--color-accent-cerulean-border':  colors.cerulean[200],
+        '--color-accent-cerulean-fg':      colors.cerulean[700],
 
-        // Notification badge
-        '--color-notification-bg':  colors.red[500],
+        // ── Status surfaces — orange ─────────────────────────────────
+        '--color-accent-orange-surface': colors.orange[50],
+        '--color-accent-orange-border':  colors.orange[200],
+        '--color-accent-orange-fg':      colors.orange[700],
 
-        // Status tile colors (color-nav swatch tiles — light mode)
-        '--color-tile-not-started': colors.brand[100],
-        '--color-tile-outstanding': colors.yellow[300],
-        '--color-tile-fulfilled':   colors.green[300],
-        '--color-tile-overdue':     colors.red[300],
+        // ── Status surfaces — pink ───────────────────────────────────
+        '--color-accent-pink-surface': colors.pink[50],
+        '--color-accent-pink-border':  colors.pink[200],
+        '--color-accent-pink-fg':      colors.pink[700],
 
-        // Status accents
-        '--color-status-success':       colors.green[500],
-        '--color-status-warning':       colors.yellow[500],
-        '--color-status-error':         colors.red[500],
-        '--color-status-error-hover':   colors.red[600],
+        // ── Status surfaces — eggplant ───────────────────────────────
+        '--color-accent-eggplant-surface': colors.eggplant[50],
+        '--color-accent-eggplant-border':  colors.eggplant[200],
+        '--color-accent-eggplant-fg':      colors.eggplant[700],
 
-        // Status surfaces — info
-        '--color-status-info-surface': colors.brand[50],
-        '--color-status-info-border':  colors.brand[200],
-        '--color-status-info-fg':      colors.brand[700],
+        // ── Status surfaces — purple ─────────────────────────────────
+        '--color-accent-purple-surface':       colors.purple[50],
+        '--color-accent-purple-border': colors.purple[100],
+        '--color-accent-purple-fg':            colors.purple[700],
 
-        // Status surfaces — success
-        '--color-status-success-surface': colors.green[50],
-        '--color-status-success-border':  colors.green[200],
-        '--color-status-success-fg':      colors.green[700],
+        // ── Nav chrome (always-dark) ─────────────────────────────────
+        // header-border → fold to surface/canvas-400 (both n/400).
+        // header-text   → fold to surface/canvas-300 (both n/300 light).
+        '--color-surface-nav-950':          colors.brand[950],
+        '--color-surface-nav-active':       colors.brand[800],
+        '--color-surface-header-hover-bg':  'rgba(255,255,255,0.08)',
 
-        // Status surfaces — warning
-        '--color-status-warning-surface': colors.yellow[50],
-        '--color-status-warning-border':  colors.yellow[200],
-        '--color-status-warning-fg':      colors.yellow[700],
+        // ── Sidenav (always-dark — only the unique row-hover/elevated + muted) ─
+        // The sidebar uses surface/header-bg for its background and folds its
+        // text + border into the canonical text/on-accent, surface/header-text,
+        // and surface/header-hover-bg tokens. Only the two row hover/elevated
+        // overlays + the muted text remain as dedicated sidenav tokens.
+        '--color-surface-sidenav-bg-hover':        'rgba(255,255,255,0.05)',
+        '--color-surface-sidenav-bg-elevated':     'rgba(255,255,255,0.10)',
+        '--color-surface-sidenav-text-muted':      colors.neutral[500],
 
-        // Status surfaces — error
-        '--color-status-error-surface': colors.red[50],
-        '--color-status-error-border':  colors.red[200],
-        '--color-status-error-fg':      colors.red[700],
-
-        // Status surfaces — cerulean
-        '--color-status-cerulean-surface': colors.cerulean[50],
-        '--color-status-cerulean-border':  colors.cerulean[200],
-        '--color-status-cerulean-fg':      colors.cerulean[700],
-
-        // Status surfaces — orange
-        '--color-status-orange-surface': colors.orange[50],
-        '--color-status-orange-border':  colors.orange[200],
-        '--color-status-orange-fg':      colors.orange[700],
-
-        // Status surfaces — pink
-        '--color-status-pink-surface': colors.pink[50],
-        '--color-status-pink-border':  colors.pink[200],
-        '--color-status-pink-fg':      colors.pink[700],
-
-        // Status surfaces — eggplant
-        '--color-status-eggplant-surface': colors.eggplant[50],
-        '--color-status-eggplant-border':  colors.eggplant[200],
-        '--color-status-eggplant-fg':      colors.eggplant[700],
-
-        // Status surfaces — purple
-        '--color-status-purple-surface':       colors.purple[50],
-        '--color-status-purple-surface-hover': colors.purple[100],
-        '--color-status-purple-border':        colors.purple[200],
-        '--color-status-purple-fg':            colors.purple[700],
-        '--color-status-purple-avatar-bg':     colors.purple[100],
-
-        // Scrollbar
-        '--color-scrollbar-thumb': colors.neutral[300],
-        '--color-scrollbar-track': 'transparent',
-
-        // Semantic spacing — layout roles (mode-independent)
+        // ── Semantic spacing (mode-independent) ──────────────────────
         '--spacing-panel-compact': '12px',
         '--spacing-panel':         '16px',
         '--spacing-panel-relaxed': '24px',
         '--spacing-section-gap':   '24px',
       },
       '.dark': {
-        // ── Accordion ────────────────────────────────────────────────
-        '--color-accordion-hover': '#111114',  // canvas — slightly lighter than recessed in dark
+        // ── Surfaces ─────────────────────────────────────────────────
+        '--color-surface-canvas-0':        '#121215',
+        '--color-surface-canvas-50':       '#111114',
+        '--color-surface-canvas-100':      '#161619',
+        '--color-surface-canvas-200':      '#0e0e11',
+        '--color-surface-canvas-300':      '#2e2e36',
+        '--color-surface-canvas-400':      colors.neutral[400],
+        '--color-surface-canvas-500':      colors.neutral[500],
+        '--color-surface-hover-overlay':   'rgba(255, 255, 255, 0.08)',
+        '--color-surface-scrim':           'rgba(0, 0, 0, 0.60)',
 
-        // ── Request row states ────────────────────────────────────────
-        '--color-row-bg':              '#161619',
-        '--color-row-hover-bg':        '#111114',
-        '--color-row-selected-bg':     '#24242b',
-        '--color-row-selected-border': '#72758a',
-
-        // ── Core surfaces ─────────────────────────────────────────────
-        '--color-bg-canvas':    '#111114',
-        '--color-bg-surface':   '#161619',
-        '--color-bg-elevated':  '#121215',
-        '--color-bg-recessed':  '#0e0e11',
-        '--color-bg-hover':     '#1c1c22',
-        '--color-bg-active':    '#24242b',
-
-        // ── Text hierarchy ───────────────────────────────────────────
-        '--color-fg-heading':   '#e8eaef',  // near-white — section/accordion headings
-        '--color-fg-primary':   '#c4c7d0',
-        '--color-fg-secondary': '#55586a',
-        '--color-fg-muted':     '#72758a',
-        '--color-fg-link':      '#3a5e88',
-        '--color-dot-unread':     '#6098e0',  // vivid blue — more prominent than fg-link
-        '--color-dot-attention':  '#f06060',  // matches status-error for visibility
-        '--color-fg-on-accent': '#ffffff',
+        // ── Text ─────────────────────────────────────────────────────
+        '--color-text-primary-900':   '#c4c7d0',
+        '--color-text-secondary-700': '#55586a',
+        '--color-text-tertiary-500':  '#72758a',
+        '--color-text-icon-800':      '#111114',
+        '--color-text-white-0':       '#ffffff',
+        '--color-text-link':          '#3a5e88',
 
         // ── Borders ──────────────────────────────────────────────────
-        '--color-line':        '#1c1c22',
-        '--color-line-strong': '#262630',
-        '--color-line-focus':  '#90c0f9',
+        '--color-border-default':       '#1c1c22',
+        '--color-border-strong':        '#262630',
+        '--color-border-focus':         colors.brand[200],
+        '--color-border-info-border':   '#1e3d6e',
 
-        // ── Navigation ───────────────────────────────────────────────
-        '--color-nav-bg':        '#09090c',
-        '--color-nav-active-bg': 'rgba(255,255,255,0.13)',
-        '--color-nav-text':      '#9aa0b4',
-        '--color-nav-hover-bg':  'rgba(255,255,255,0.06)',
+        // ── Action ──────────────────────────────────────────────────
+        '--color-action-primary-500':                 '#6098e0',
+        '--color-action-primary-hover-600':           '#d8dae2',
+        '--color-action-primary-selected-700':        '#38bdf8',
+        '--color-action-destructive':                 'var(--color-accent-red)',
+        '--color-action-destructive-hover':           '#f87878',
+        '--color-action-attention-destructive':       'var(--color-accent-red)',
+        '--color-action-attention-destructive-hover': '#f87878',
+        '--color-action-selected':                    '#24242b',
 
-        // ── Sidebar chrome ────────────────────────────────────────────
-        '--color-sidenav-surface':          '#1a1d24',
-        '--color-sidenav-surface-hover':    'rgba(255,255,255,0.05)',
-        '--color-sidenav-surface-elevated': 'rgba(255,255,255,0.10)',
-        '--color-sidenav-border':           'rgba(255,255,255,0.08)',
-        '--color-sidenav-fg-primary':       '#f4f4f6',
-        '--color-sidenav-fg-secondary':     '#c5c7d0',
-        '--color-sidenav-fg-muted':         '#8a8d9b',
+        // ── (former indicator/* group ─ see status/ + action/) ───────
 
-        // ── Notification badge ────────────────────────────────────────
-        '--color-notification-bg': '#c0352a',  // muted dark red
+        // ── Tiles ─────────────────────────────────────────────────────
+        '--color-request-status-not-started': '#3a3e48',
+        '--color-request-status-outstanding': '#f0a840',
+        '--color-request-status-fulfilled':   '#40cc90',
+        '--color-request-status-overdue':     '#f06060',
 
-        // ── Status tile colors — exact same as icon colors ───────────
-        // tiles = same as row icons
-        '--color-tile-not-started': '#3a3e48',  // = action-primary
-        '--color-tile-outstanding': '#f0a840',  // = status-warning
-        '--color-tile-fulfilled':   '#40cc90',  // = status-success
-        '--color-tile-overdue':     '#f06060',  // = status-error
+        // ── Status accents ───────────────────────────────────────────
+        '--color-accent-green':     '#40cc90',
+        '--color-accent-yellow':     '#f0a840',
+        '--color-accent-red':       '#f06060',
+        '--color-accent-orange':   '#f06060',
+        '--color-accent-cerulean':    colors.cerulean[400],
+        '--color-accent-purple':      '#b89ee0',
+        '--color-accent-pink':        colors.pink[400],
+        '--color-accent-eggplant':    colors.eggplant[400],
 
-        // ── Tile flag icon / meta unread ─────────────────────────────
-        '--color-tile-flag':   '#111114',  // matches canvas — stamp effect on colored tiles
-        '--color-meta-unread': '#c0c3ce',  // lighter than fg-primary for emphasis
+        // ── Status surfaces ──────────────────────────────────────────
+        // (Info: accent/info-border moved to border/info-border above;
+        //  accent/info-fg folded into action/primary-hover-600.)
+        '--color-accent-green-surface': 'rgba(34,197,94,0.15)',
+        '--color-accent-green-border':  'rgba(34,197,94,0.30)',
+        '--color-accent-green-fg':      '#22C55E',
+        '--color-accent-yellow-surface': 'rgba(245,158,11,0.15)',
+        '--color-accent-yellow-border':  'rgba(245,158,11,0.30)',
+        '--color-accent-yellow-fg':      '#F59E0B',
+        '--color-accent-red-surface':   'rgba(239,68,68,0.15)',
+        '--color-accent-red-border':    'rgba(239,68,68,0.30)',
+        '--color-accent-red-fg':        '#EF4444',
+        '--color-accent-cerulean-surface': colors.cerulean[950],
+        '--color-accent-cerulean-border':  colors.cerulean[600],
+        '--color-accent-cerulean-fg':      colors.cerulean[300],
+        '--color-accent-orange-surface':   '#4a2c16',
+        '--color-accent-orange-border':    'rgba(249,115,22,0.30)',
+        '--color-accent-orange-fg':        '#e8935a',
+        '--color-accent-pink-surface':     'rgba(236,72,153,0.15)',
+        '--color-accent-pink-border':      'rgba(236,72,153,0.30)',
+        '--color-accent-pink-fg':          colors.pink[300],
+        '--color-accent-eggplant-surface': colors.eggplant[950],
+        '--color-accent-eggplant-border':  colors.eggplant[600],
+        '--color-accent-eggplant-fg':      colors.eggplant[300],
+        '--color-accent-purple-surface':       '#1e1c28',
+        '--color-accent-purple-border': '#252230',
+        '--color-accent-purple-fg':            '#b89ee0',
 
-        // ── Actions ──────────────────────────────────────────────────
-        '--color-action-primary':       '#c4c7d0',  // fg-primary level — visible selection ring
-        '--color-action-primary-hover': '#d8dae2',
+        // ── Header chrome ────────────────────────────────────────────
+        '--color-surface-nav-950':           '#09090c',
+        '--color-surface-nav-active':        'rgba(255,255,255,0.13)',
+        '--color-surface-header-hover-bg':   'rgba(255,255,255,0.06)',
 
-        // ── Outstanding status icon ───────────────────────────────────
-        '--color-status-outstanding': '#3a3e48',  // matches tile-not-started
+        // ── Sidenav (dark — only the unique row overlays + muted text) ─
+        '--color-surface-sidenav-bg-hover':        'rgba(255,255,255,0.05)',
+        '--color-surface-sidenav-bg-elevated':     'rgba(255,255,255,0.10)',
+        '--color-surface-sidenav-text-muted':      colors.neutral[500],
 
-        // icons = bright fg (like E-Sig badge text #4fe4ff)
-        '--color-status-success':     '#40cc90',  // bright teal-green
-        '--color-status-warning':     '#f0a840',  // amber
-        '--color-status-error':       '#f06060',  // bright red
-        '--color-status-error-hover': '#f87878',
-
-        // ── Status surfaces — info (blue) ────────────────────────────
-        '--color-status-info-surface': 'rgba(56,189,248,0.15)',
-        '--color-status-info-border':  'rgba(56,189,248,0.30)',
-        '--color-status-info-fg':      '#38BDF8',
-
-        // ── Status surfaces — success (green) ────────────────────────
-        '--color-status-success-surface': 'rgba(34,197,94,0.15)',
-        '--color-status-success-border':  'rgba(34,197,94,0.30)',
-        '--color-status-success-fg':      '#22C55E',
-
-        // ── Status surfaces — warning (amber) ────────────────────────
-        '--color-status-warning-surface': 'rgba(245,158,11,0.15)',
-        '--color-status-warning-border':  'rgba(245,158,11,0.30)',
-        '--color-status-warning-fg':      '#F59E0B',
-
-        // ── Status surfaces — error (red) ────────────────────────────
-        '--color-status-error-surface': 'rgba(239,68,68,0.15)',
-        '--color-status-error-border':  'rgba(239,68,68,0.30)',
-        '--color-status-error-fg':      '#EF4444',
-
-        // ── Status surfaces — cerulean ────────────────────────────────
-        '--color-status-cerulean-surface': colors.cerulean[950],
-        '--color-status-cerulean-border':  colors.cerulean[700],
-        '--color-status-cerulean-fg':      colors.cerulean[300],
-
-        // ── Status surfaces — orange ──────────────────────────────────
-        '--color-status-orange-surface': '#4a2c16',  // dark muted orange
-        '--color-status-orange-border':  'rgba(249,115,22,0.30)',
-        '--color-status-orange-fg':      '#e8935a',  // soft warm orange
-
-        // ── Status surfaces — pink ────────────────────────────────────
-        '--color-status-pink-surface': 'rgba(236,72,153,0.15)',
-        '--color-status-pink-border':  'rgba(236,72,153,0.30)',
-        '--color-status-pink-fg':      colors.pink[300],
-
-        // ── Status surfaces — eggplant ────────────────────────────────
-        '--color-status-eggplant-surface': colors.eggplant[950],
-        '--color-status-eggplant-border':  colors.eggplant[700],
-        '--color-status-eggplant-fg':      colors.eggplant[300],
-
-        // ── Status surfaces — purple ──────────────────────────────────
-        '--color-status-purple-surface':       '#1e1c28',  // barely-there purple tint
-        '--color-status-purple-surface-hover': '#252230',
-        '--color-status-purple-border':        'rgba(168,85,247,0.12)',
-        '--color-status-purple-fg':            '#b89ee0',  // soft muted purple
-        '--color-status-purple-avatar-bg':     '#2e1a6b',  // purple-900, muted but distinct from card surface
-
-        // ── Scrollbar ─────────────────────────────────────────────────────
-        '--color-scrollbar-thumb': '#3a3e48',
-        '--color-scrollbar-track': 'transparent',
-
-        // ── Semantic spacing (same in both modes) ─────────────────────────
+        // ── Semantic spacing (same in both modes) ─────────────────────
         '--spacing-panel-compact': '12px',
         '--spacing-panel':         '16px',
         '--spacing-panel-relaxed': '24px',
         '--spacing-section-gap':   '24px',
       },
-      // Sidebar instance-level theme overrides — flip chrome without affecting the document
+
+      // ── Per-subtree theme overrides ─────────────────────────────────
+      // `<element data-theme="light">…` forces surface/header-bg to its LIGHT
+      // value (brand-navy) regardless of document mode.
+      // `<element data-theme="dark">…` forces it to the DARK value.
+      // Use on the Sidebar so it can render its mode independently of the
+      // surrounding document theme.
       '[data-theme="light"]': {
-        '--color-sidenav-surface':          '#ffffff',
-        '--color-sidenav-surface-hover':    'var(--color-bg-surface)',
-        '--color-sidenav-surface-elevated': 'var(--color-bg-recessed)',
-        '--color-sidenav-border':           'var(--color-line)',
-        '--color-sidenav-fg-primary':       'var(--color-fg-primary)',
-        '--color-sidenav-fg-secondary':     'var(--color-fg-secondary)',
-        '--color-sidenav-fg-muted':         'var(--color-fg-muted)',
+        '--color-surface-nav-950':               colors.brand[950],
       },
       '[data-theme="dark"]': {
-        '--color-sidenav-surface':          '#1a1d24',
-        '--color-sidenav-surface-hover':    'rgba(255,255,255,0.05)',
-        '--color-sidenav-surface-elevated': 'rgba(255,255,255,0.10)',
-        '--color-sidenav-border':           'rgba(255,255,255,0.08)',
-        '--color-sidenav-fg-primary':       '#f4f4f6',
-        '--color-sidenav-fg-secondary':     '#c5c7d0',
-        '--color-sidenav-fg-muted':         '#8a8d9b',
+        '--color-surface-nav-950':               colors.neutral[950],
       },
     });
   },
   {
     theme: {
       extend: {
+        // Tailwind utility classes — short names (utility prefix implies the group).
+        // Examples: `bg-canvas`, `text-primary`, `border-line`, `bg-row-selected`.
         colors: {
-          // Backgrounds
-          'canvas':     'var(--color-bg-canvas)',
-          'surface':    'var(--color-bg-surface)',
-          'elevated':   'var(--color-bg-elevated)',
-          'recessed':   'var(--color-bg-recessed)',
-          'row-hover':  'var(--color-bg-hover)',
-          'row-active': 'var(--color-bg-active)',
+          // ── Surfaces (used as bg-*) ─────────────────────────────────
+          // Tailwind class names use role-first naming (bg-canvas, bg-surface,
+          // bg-elevated) for consumer ergonomics. The underlying CSS vars use
+          // canvas-{shade} naming to mirror Figma + surface the primitive
+          // shade in the var name itself.
+          canvas:            'var(--color-surface-canvas-50)',   // neutral/50  — page background
+          surface:           'var(--color-surface-canvas-100)',  // neutral/100 — subtle hover surface
+          elevated:          'var(--color-surface-canvas-0)',    // neutral/0   — card / panel bg
+          recessed:          'var(--color-surface-canvas-200)',  // neutral/200 — recessed bg
+          pressed:           'var(--color-surface-canvas-300)',  // neutral/300 — pressed button fill
+          'hover-overlay':   'var(--color-surface-hover-overlay)',
+          'row-selected':    'var(--color-action-selected)', // brand/50    — selected row + info-tinted surfaces
+          scrollbar:         'var(--color-surface-canvas-300)',  // (alias to pressed — same neutral/300)
+          notification:      'var(--color-action-attention-destructive)',
+          scrim:             'var(--color-surface-scrim)',
 
-          // Accordion
-          'accordion-hover': 'var(--color-accordion-hover)',
+          // ── Text (used as text-*) ───────────────────────────────────
+          heading:      'var(--color-text-primary-900)',  // (heading var deleted — folded to primary-900)
+          primary:      'var(--color-text-primary-900)',
+          secondary:    'var(--color-text-secondary-700)',
+          muted:        'var(--color-text-tertiary-500)',
+          link:         'var(--color-text-link)',
+          'on-accent':  'var(--color-text-white-0)',
+          'tile-flag':  'var(--color-text-icon-800)',
 
-          // Request row
-          'row-bg':              'var(--color-row-bg)',
-          'row-hover-bg':        'var(--color-row-hover-bg)',
-          'row-selected-bg':     'var(--color-row-selected-bg)',
-          'row-selected-border': 'var(--color-row-selected-border)',
+          // ── Borders (used as border-*, ring-*, bg-*) ────────────────
+          // Aliased as `line` rather than `border-default` so the class names
+          // stay ergonomic (`border-line`, `ring-line-focus`) — the CSS var
+          // (`--color-border-default`) carries the industry-standard semantic
+          // name; the Tailwind alias is purely a class-ergonomics layer.
+          'line':              'var(--color-border-default)',
+          'line-strong':       'var(--color-border-strong)',
+          'line-focus':        'var(--color-border-focus)',
 
-          // Foreground
-          'fg-heading':   'var(--color-fg-heading)',
-          'fg-primary':   'var(--color-fg-primary)',
-          'fg-secondary': 'var(--color-fg-secondary)',
-          'fg-muted':     'var(--color-fg-muted)',
-          'fg-link':      'var(--color-fg-link)',
-          'fg-on-accent': 'var(--color-fg-on-accent)',
+          // ── Action (canonical brand-primary) ────────────────────────
+          // action-primary is the single source-of-truth for "brand blue
+          // fill/stroke/text". Use it for primary buttons, selected-row
+          // accents, unread dots, outstanding-status icons.
+          'action-primary':          'var(--color-action-primary-500)',
+          'action-primary-hover':    'var(--color-action-primary-hover-600)',
+          'action-primary-selected': 'var(--color-action-primary-selected-700)',
+          'action-danger':           'var(--color-action-destructive)',
+          'action-danger-hover':     'var(--color-action-destructive-hover)',
 
-          // Navigation
-          'nav-bg':        'var(--color-nav-bg)',
-          'nav-border':    'var(--color-nav-border)',
-          'nav-active-bg': 'var(--color-nav-active-bg)',
-          'nav-text':      'var(--color-nav-text)',
+          // ── (Indicators group eliminated — see status/ + action/) ──
+          // The 9 former indicator/* tokens were bumped to -500 and either
+          // folded into matching action/status tokens (brand → action-primary,
+          // success → status-success, warning → status-warning, error →
+          // status-error) or renamed to status/* flat accents (attention,
+          // cerulean, purple, pink, eggplant).
 
-          // Sidebar chrome
-          'sidenav-surface':           'var(--color-sidenav-surface)',
-          'sidenav-surface-hover':     'var(--color-sidenav-surface-hover)',
-          'sidenav-surface-elevated':  'var(--color-sidenav-surface-elevated)',
-          'sidenav-border':            'var(--color-sidenav-border)',
-          'sidenav-fg-primary':        'var(--color-sidenav-fg-primary)',
-          'sidenav-fg-secondary':      'var(--color-sidenav-fg-secondary)',
-          'sidenav-fg-muted':          'var(--color-sidenav-fg-muted)',
+          // ── Tiles ───────────────────────────────────────────────────
+          'swatch-not-started': 'var(--color-request-status-not-started)',
+          'swatch-outstanding': 'var(--color-request-status-outstanding)',
+          'swatch-fulfilled':   'var(--color-request-status-fulfilled)',
+          'swatch-overdue':     'var(--color-request-status-overdue)',
 
-          // Borders
-          'line':        'var(--color-line)',
-          'line-strong': 'var(--color-line-strong)',
-          'line-focus':  'var(--color-line-focus)',
+          // ── Status accents (flat -500 colors for icons + dots) ──────
+          // outstanding folded into action-primary (both brand[500]).
+          'status-success':     'var(--color-accent-green)',
+          'status-warning':     'var(--color-accent-yellow)',
+          'status-error':       'var(--color-accent-red)',
+          'status-attention':   'var(--color-accent-orange)',
+          'status-cerulean':    'var(--color-accent-cerulean)',
+          'status-purple':      'var(--color-accent-purple)',
+          'status-pink':        'var(--color-accent-pink)',
+          'status-eggplant':    'var(--color-accent-eggplant)',
 
-          // Actions
-          'action-primary':       'var(--color-action-primary)',
-          'action-primary-hover': 'var(--color-action-primary-hover)',
+          // ── Status surfaces ─────────────────────────────────────────
+          // status-info-border relocated to border/info-border.
+          // status-info-fg folded into action/primary-hover-600.
+          'status-info-border':     'var(--color-border-info-border)',
+          'status-info-fg':         'var(--color-action-primary-hover-600)',
+          'status-success-surface': 'var(--color-accent-green-surface)',
+          'status-success-border':  'var(--color-accent-green-border)',
+          'status-success-fg':      'var(--color-accent-green-fg)',
+          'status-warning-surface': 'var(--color-accent-yellow-surface)',
+          'status-warning-border':  'var(--color-accent-yellow-border)',
+          'status-warning-fg':      'var(--color-accent-yellow-fg)',
+          'status-error-surface':   'var(--color-accent-red-surface)',
+          'status-error-border':    'var(--color-accent-red-border)',
+          'status-error-fg':        'var(--color-accent-red-fg)',
+          'status-cerulean-surface':'var(--color-accent-cerulean-surface)',
+          'status-cerulean-border': 'var(--color-accent-cerulean-border)',
+          'status-cerulean-fg':     'var(--color-accent-cerulean-fg)',
+          'status-orange-surface':  'var(--color-accent-orange-surface)',
+          'status-orange-border':   'var(--color-accent-orange-border)',
+          'status-orange-fg':       'var(--color-accent-orange-fg)',
+          'status-pink-surface':    'var(--color-accent-pink-surface)',
+          'status-pink-border':     'var(--color-accent-pink-border)',
+          'status-pink-fg':         'var(--color-accent-pink-fg)',
+          'status-eggplant-surface':'var(--color-accent-eggplant-surface)',
+          'status-eggplant-border': 'var(--color-accent-eggplant-border)',
+          'status-eggplant-fg':     'var(--color-accent-eggplant-fg)',
+          'status-purple-surface':       'var(--color-accent-purple-surface)',
+          'status-purple-border': 'var(--color-accent-purple-border)',
+          'status-purple-fg':            'var(--color-accent-purple-fg)',
 
-          // Tile flag / meta
-          'dot-unread':     'var(--color-dot-unread)',
-          'dot-attention':  'var(--color-dot-attention)',
-          'tile-flag':   'var(--color-tile-flag)',
-          'meta-unread': 'var(--color-meta-unread)',
+          // ── Header chrome ───────────────────────────────────────────
+          'header-bg':        'var(--color-surface-nav-950)',
+          'header-border':    'var(--color-surface-canvas-400)', // folded — both n/400
+          'header-active-bg': 'var(--color-surface-nav-active)',
+          'header-hover-bg':  'var(--color-surface-header-hover-bg)',
+          'header-text':      'var(--color-surface-canvas-300)',
 
-          // Status accents
-          'status-outstanding':   'var(--color-status-outstanding)',
-          'status-success':       'var(--color-status-success)',
-          'status-warning':       'var(--color-status-warning)',
-          'status-error':         'var(--color-status-error)',
-          'status-error-hover':   'var(--color-status-error-hover)',
-
-          // Status surfaces
-          'status-info-surface':    'var(--color-status-info-surface)',
-          'status-info-border':     'var(--color-status-info-border)',
-          'status-info-fg':         'var(--color-status-info-fg)',
-          'status-success-surface': 'var(--color-status-success-surface)',
-          'status-success-border':  'var(--color-status-success-border)',
-          'status-success-fg':      'var(--color-status-success-fg)',
-          'status-warning-surface': 'var(--color-status-warning-surface)',
-          'status-warning-border':  'var(--color-status-warning-border)',
-          'status-warning-fg':      'var(--color-status-warning-fg)',
-          'status-error-surface':   'var(--color-status-error-surface)',
-          'status-error-border':    'var(--color-status-error-border)',
-          'status-error-fg':        'var(--color-status-error-fg)',
-
-          // Status surfaces — cerulean
-          'status-cerulean-surface': 'var(--color-status-cerulean-surface)',
-          'status-cerulean-border':  'var(--color-status-cerulean-border)',
-          'status-cerulean-fg':      'var(--color-status-cerulean-fg)',
-
-          // Status surfaces — orange
-          'status-orange-surface': 'var(--color-status-orange-surface)',
-          'status-orange-border':  'var(--color-status-orange-border)',
-          'status-orange-fg':      'var(--color-status-orange-fg)',
-
-          // Status surfaces — pink
-          'status-pink-surface': 'var(--color-status-pink-surface)',
-          'status-pink-border':  'var(--color-status-pink-border)',
-          'status-pink-fg':      'var(--color-status-pink-fg)',
-
-          // Status surfaces — eggplant
-          'status-eggplant-surface': 'var(--color-status-eggplant-surface)',
-          'status-eggplant-border':  'var(--color-status-eggplant-border)',
-          'status-eggplant-fg':      'var(--color-status-eggplant-fg)',
-
-          // Status surfaces — purple
-          'status-purple-surface':       'var(--color-status-purple-surface)',
-          'status-purple-surface-hover': 'var(--color-status-purple-surface-hover)',
-          'status-purple-border':        'var(--color-status-purple-border)',
-          'status-purple-fg':            'var(--color-status-purple-fg)',
-          'status-purple-avatar-bg':     'var(--color-status-purple-avatar-bg)',
-
-          // Scrollbar
-          'scrollbar-thumb': 'var(--color-scrollbar-thumb)',
-          'scrollbar-track': 'var(--color-scrollbar-track)',
+          // ── Sidenav (CSS vars under surface/sidenav-* — preserves
+          //    the original Tailwind class names) ─────────────────────
+          // After consolidation: sidenav-* aliases redirect to the canonical
+          // surface/text tokens they now share. Only -surface-hover, -surface-
+          // elevated, and -fg-muted still have unique sidenav-only CSS vars.
+          'sidenav-surface':          'var(--color-surface-nav-950)',
+          'sidenav-surface-hover':    'var(--color-surface-sidenav-bg-hover)',
+          'sidenav-surface-elevated': 'var(--color-surface-sidenav-bg-elevated)',
+          'sidenav-border':           'var(--color-surface-header-hover-bg)',
+          'sidenav-fg-primary':       'var(--color-text-white-0)',
+          'sidenav-fg-secondary':     'var(--color-surface-canvas-300)',
+          'sidenav-fg-muted':         'var(--color-surface-sidenav-text-muted)',
         },
         spacing: {
-          // Semantic layout spacing
           'panel-compact':  'var(--spacing-panel-compact)',
           'panel':          'var(--spacing-panel)',
           'panel-relaxed':  'var(--spacing-panel-relaxed)',
