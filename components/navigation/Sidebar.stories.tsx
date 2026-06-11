@@ -1,447 +1,339 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { useState } from 'react';
 import { Sidebar } from './Sidebar';
-import { SidebarHeader } from './SidebarHeader';
-import { SidebarToolbar } from './SidebarToolbar';
-import { SidebarSection } from './SidebarSection';
-import { SidebarRow } from './SidebarRow';
-import { SidebarFilterChip } from './SidebarFilterChip';
-import { SidebarStatusChip } from './SidebarStatusChip';
-import { Badge } from '../primitives/Badge';
-import { Dropdown } from '../overlay/Dropdown';
-import { ActionMenu } from '../overlay/ActionMenu';
-import { Briefcase01Icon } from '../primitives/icons/Briefcase01Icon';
-import { Settings01Icon } from '../primitives/icons/Settings01Icon';
-import { DotsHorizontalIcon } from '../primitives/icons/DotsHorizontalIcon';
-import { DotsVerticalIcon } from '../primitives/icons/DotsVerticalIcon';
-import { MessageChatSquareIcon } from '../primitives/icons/MessageChatSquareIcon';
-import { Flag01Icon } from '../primitives/icons/Flag01Icon';
+import { NavItem, type NavItemStatus } from './NavItem';
+import { Chip } from '../data-display/Chip';
+import { ArrowLeftIcon } from '../primitives/icons/ArrowLeftIcon';
+import { ChevronLeftIcon } from '../primitives/icons/ChevronLeftIcon';
+import { LayoutAlt04Icon } from '../primitives/icons/LayoutAlt04Icon';
+import { StatusOutstandingIcon } from '../primitives/icons/StatusOutstandingIcon';
+import { StatusFulfilledIcon } from '../primitives/icons/StatusFulfilledIcon';
+import { StatusReturnedIcon } from '../primitives/icons/StatusReturnedIcon';
+import { StatusAcceptedIcon } from '../primitives/icons/StatusAcceptedIcon';
+import { MatrixVerify, type MatrixCellSpec } from '../_decorators/MatrixVerify';
 
 const meta: Meta<typeof Sidebar> = {
-  title: 'Navigation/Sidebar',
+  title: 'Navigation/SideNav',
   component: Sidebar,
   parameters: { layout: 'fullscreen' },
 };
 export default meta;
 type Story = StoryObj<typeof Sidebar>;
 
-const STATUS_OPTIONS = [
-  { value: 'todo',        label: 'To Do',       color: 'neutral' as const },
-  { value: 'in-progress', label: 'In Progress', color: 'yellow'  as const },
-  { value: 'done',        label: 'Done',        color: 'green'   as const },
-  { value: 'overdue',     label: 'Overdue',     color: 'red'     as const },
+// ─── Canonical Light Mode definition ────────────────────────────────────────
+// This single source of truth mirrors the Figma `SideNav` ComponentSet (1147:213,
+// State=Expanded) — the Light Mode definition of the SideNav primitive. Every
+// Storybook story below renders this exact structure so the canvas, the
+// Matrix, and the app shell agree on one shape: a header → toolbar → waterfall
+// sections list → footer, with sections that use the canonical Waterfall row
+// containing Type=Group child rows whose statuses cycle deterministically.
+//
+// Child NavItems pass `indent={false}` — mirrors the per-instance Indent=false
+// override on every SideNav child in Figma, so children sit flush against the
+// row's left edge (the section header alone carries the hierarchy).
+
+// Section + row content mirrors the Figma `SideNav` 1147:213 Expanded variant
+// exactly — each child's Status, Index, and Label are the per-instance overrides
+// captured from the canonical.
+const SIDEBAR_SECTIONS: {
+  title: string;
+  rows: { status: NavItemStatus; index: number; title: string }[];
+}[] = [
+  { title: 'Commissions Testing 2023', rows: [
+    { status: 'outstanding', index: 16, title: 'Samples 1-30' },
+    { status: 'returned',    index: 17, title: 'Samples 31-60 from VelciTech Solutions' },
+    { status: 'fulfilled',   index: 19, title: 'Samples 61-90' },
+    { status: 'accepted',    index: 18, title: 'Samples 90-159' },
+    { status: 'outstanding', index: 20, title: 'Samples 159-180' },
+  ]},
+  { title: 'Legal Agreements', rows: [
+    { status: 'returned',  index: 55, title: 'Lease agreement' },
+    { status: 'fulfilled', index: 55, title: 'Lease agreement addendum' },
+  ]},
+  { title: 'Opening Balance Procedure', rows: [
+    { status: 'fulfilled',   index: 54, title: '54 Cash' },
+    { status: 'fulfilled',   index: 55, title: 'Please provide Trial Balance' },
+    { status: 'returned',    index: 55, title: 'Commissions Retained' },
+    { status: 'returned',    index: 56, title: 'Trip deposits' },
+    { status: 'fulfilled',   index: 58, title: 'A/R samples' },
+    { status: 'returned',    index: 61, title: 'Child item 6' },
+    { status: 'fulfilled',   index: 57, title: 'Child item 7' },
+    { status: 'outstanding', index: 60, title: 'Child item 8' },
+  ]},
+  { title: 'Shareholder Distributions', rows: [
+    { status: 'outstanding', index: 55, title: 'Child item 1' },
+  ]},
+  { title: 'Revenue Testing', rows: [
+    { status: 'returned',    index: 72, title: 'Revenue samples - 2…' },
+    { status: 'fulfilled',   index: 73, title: 'Revenue samples - 6…' },
+    { status: 'outstanding', index: 74, title: 'Revenue samples - 9…' },
+  ]},
 ];
 
-// ── Shared helpers ──────────────────────────────────────────────────────────
-
-const Avatar = ({ initials = 'AB' }: { initials?: string }) => (
-  <div className="h-6 w-6 rounded-full bg-sidenav-surface-elevated text-label-sm flex items-center justify-center text-sidenav-fg-primary">
-    {initials}
-  </div>
-);
-
-const IconButton = ({
-  children,
-  label,
-  onClick,
-}: {
-  children: React.ReactNode;
-  label: string;
-  onClick?: () => void;
-}) => (
+/**
+ * Icon-only square button that fills the 40×40 header slot in Figma's
+ * SideNav TopRow (BackButton + CockpitButton). Padding 8 + 20×20 icon.
+ */
+const SideNavIconButton = ({
+  ariaLabel, onClick, children,
+}: { ariaLabel: string; onClick?: () => void; children: React.ReactNode }) => (
   <button
     type="button"
-    aria-label={label}
-    onClick={(e) => {
-      e.stopPropagation();
-      onClick?.();
-    }}
-    className="p-1 rounded-control hover:bg-sidenav-surface-hover text-sidenav-fg-secondary hover:text-sidenav-fg-primary transition-colors"
+    aria-label={ariaLabel}
+    onClick={onClick}
+    className="inline-flex h-10 w-10 items-center justify-center rounded-control text-sidenav-fg-primary hover:bg-sidenav-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-line-focus"
   >
     {children}
   </button>
 );
 
-const RowOverflowMenu = () => (
-  <Dropdown
-    align="right"
-    width="auto"
-    trigger={
-      <button
-        type="button"
-        aria-label="More actions"
-        onClick={(e) => e.stopPropagation()}
-        className="p-1 rounded-control hover:bg-sidenav-surface-hover text-sidenav-fg-secondary hover:text-sidenav-fg-primary transition-colors"
-      >
-        <DotsVerticalIcon size={16} />
-      </button>
-    }
-  >
-    <ActionMenu
-      size="sm"
-      groups={[
-        {
-          items: [
-            { label: 'Rename',     onClick: () => console.log('rename') },
-            { label: 'Duplicate',  onClick: () => console.log('duplicate') },
-            { label: 'Move to…',   onClick: () => console.log('move') },
-            { label: 'Delete', danger: true, onClick: () => console.log('delete') },
-          ],
-        },
-      ]}
-    />
-  </Dropdown>
-);
-
-interface SampleRowProps {
-  title: string;
-  subtitle?: string;
-  status?: string;
-  index?: number;
-  initials?: string;
-  trailing?: React.ReactNode;
-  active?: boolean;
-}
-
-function SampleRow({
-  title,
-  subtitle,
-  status = 'in-progress',
-  index,
-  initials = 'MA',
-  trailing,
-  active,
-}: SampleRowProps) {
-  const [statusValue, setStatusValue] = useState(status);
+/**
+ * Multi-select status filter chip used in the SideNav header's 2×2 grid.
+ * Mirrors Figma's canonical Chip instance with `Size=Small, Actions=Multi
+ * selected, Icon=Left`. The status icon comes from the Icons page.
+ */
+function SideNavStatusChip({
+  label, icon, active, onToggle,
+}: { label: string; icon: React.ReactNode; active: boolean; onToggle: () => void }) {
   return (
-    <SidebarRow
-      title={title}
-      subtitle={subtitle}
-      index={index}
-      active={active}
-      onSelect={() => console.log('row selected:', title)}
-      leading={
-        <SidebarStatusChip
-          value={statusValue}
-          options={STATUS_OPTIONS}
-          onChange={(v) => setStatusValue(v)}
-        />
-      }
-      hoverActions={
-        <>
-          <Avatar initials={initials} />
-          <IconButton label="Comment" onClick={() => console.log('comment')}>
-            <MessageChatSquareIcon size={16} />
-          </IconButton>
-          <IconButton label="Flag" onClick={() => console.log('flag')}>
-            <Flag01Icon size={16} />
-          </IconButton>
-        </>
-      }
-      trailing={trailing}
-      overflowMenu={<RowOverflowMenu />}
+    <Chip
+      size="sm"
+      label={label}
+      iconLeft={icon}
+      selected={active ? 'multi' : 'none'}
+      onClick={onToggle}
     />
   );
 }
 
-// ── Stories ─────────────────────────────────────────────────────────────────
+/**
+ * Canonical SideNav — mirrors Figma `SideNav` 1147:213 State=Expanded exactly.
+ *
+ * Structure: outer padding 12/12/8/8, gap 24. Header has TopRow [BackBtn +
+ * CockpitBtn] then plain title (16 Semibold, no subtitle). Filter chips render
+ * in a 2×2 grid (gap 8 vertical, 4 horizontal) using the canonical Chip
+ * primitive. Sections use NavItem type="waterfall" with `indent={false}`
+ * Group children.
+ */
+function LightModeSideNav({
+  theme = 'light',
+  width = 264,
+}: {
+  theme?: 'dark' | 'light';
+  width?: number;
+}) {
+  const [active, setActive] = useState<string | null>(null);
+  const [filters, setFilters] = useState({
+    outstanding: true,
+    fulfilled:   true,
+    returned:    true,
+    accepted:    true,
+  });
+  const toggle = (k: keyof typeof filters) =>
+    setFilters((p) => ({ ...p, [k]: !p[k] }));
 
-export const Default: Story = {
-  render: () => {
-    const [inProgress, setInProgress] = useState(true);
-    const [outstanding, setOutstanding] = useState(false);
-    return (
-      <div className="h-screen flex bg-canvas">
-        <Sidebar>
-          <SidebarHeader
-            title="Acme Corp · FY2025"
-            subtitle="Tax Return"
-            icon={<Briefcase01Icon size={16} />}
-            onBack={() => console.log('back')}
-          />
-          <SidebarToolbar>
-            <SidebarFilterChip
-              label="In Progress"
-              color="brand"
-              count={12}
-              active={inProgress}
-              onToggle={() => setInProgress((v) => !v)}
-            />
-            <SidebarFilterChip
+  return (
+    <Sidebar theme={theme} width={width} className="h-full">
+      {/* Inner — padding 12/12/8/8 with vertical gap 24 between Header, Chips, Sections */}
+      <div className="flex flex-1 flex-col gap-6 px-3 pt-2 pb-2 overflow-y-auto">
+        {/* Header — TopRow (back + cockpit) + Title */}
+        <header className="flex flex-col gap-6">
+          <div className="flex items-center justify-between">
+            <SideNavIconButton ariaLabel="Back" onClick={() => {}}>
+              <ArrowLeftIcon size={20} />
+            </SideNavIconButton>
+            <SideNavIconButton ariaLabel="Toggle workspace">
+              <LayoutAlt04Icon size={20} />
+            </SideNavIconButton>
+          </div>
+          <div className="px-2">
+            <h2 className="text-body-md font-semibold text-sidenav-fg-primary truncate">
+              Gifted Travel Network Inc
+            </h2>
+          </div>
+        </header>
+
+        {/* Filter chips — 2×2 grid, gap 8 vertical / 4 horizontal */}
+        <div className="flex flex-col gap-2">
+          <div className="flex gap-1">
+            <SideNavStatusChip
               label="Outstanding"
-              color="yellow"
-              count={4}
-              active={outstanding}
-              onToggle={() => setOutstanding((v) => !v)}
+              icon={<StatusOutstandingIcon size={16} />}
+              active={filters.outstanding}
+              onToggle={() => toggle('outstanding')}
             />
-          </SidebarToolbar>
-          <div className="flex-1 overflow-y-auto">
-            <SidebarSection title="Open Requests" count={4}>
-              <SampleRow index={1} title="Bank statements - Q3" subtitle="Due Dec 15 · Alex" status="in-progress" />
-              <SampleRow index={2} title="Payroll reconciliation"  subtitle="Due Dec 20 · Sam"  status="todo" />
-              <SampleRow index={3} title="AR aging report"          subtitle="Due Dec 22 · Alex" status="overdue" />
-              <SampleRow index={4} title="Capex schedule review"    subtitle="Due Dec 28 · Riley" status="in-progress" />
-            </SidebarSection>
+            <SideNavStatusChip
+              label="Fulfilled"
+              icon={<StatusFulfilledIcon size={16} />}
+              active={filters.fulfilled}
+              onToggle={() => toggle('fulfilled')}
+            />
           </div>
-          <div className="px-3 py-2 border-t border-sidenav-border text-label-sm text-sidenav-fg-muted">
-            12 open · 4 closed
+          <div className="flex gap-1">
+            <SideNavStatusChip
+              label="Returned"
+              icon={<StatusReturnedIcon size={16} />}
+              active={filters.returned}
+              onToggle={() => toggle('returned')}
+            />
+            <SideNavStatusChip
+              label="Accepted"
+              icon={<StatusAcceptedIcon size={16} />}
+              active={filters.accepted}
+              onToggle={() => toggle('accepted')}
+            />
           </div>
-        </Sidebar>
-        <div className="flex-1 p-4 text-fg-secondary">
-          Document area — any child node can act as a footer (last child in the flex column).
+        </div>
+
+        {/* Sections — Waterfall NavItems with Group children */}
+        <div className="flex flex-col gap-6">
+          {SIDEBAR_SECTIONS.map((section) => (
+            <NavItem
+              key={section.title}
+              type="waterfall"
+              title={section.title}
+              defaultExpanded
+            >
+              {section.rows.map((row, i) => {
+                const key = `${section.title}-${i}`;
+                return (
+                  <NavItem
+                    key={key}
+                    type="group"
+                    status={row.status}
+                    index={row.index}
+                    title={row.title}
+                    active={active === key}
+                    onSelect={() => setActive(key)}
+                    indent={false}
+                  />
+                );
+              })}
+            </NavItem>
+          ))}
         </div>
       </div>
-    );
-  },
-};
+    </Sidebar>
+  );
+}
 
-export const Minimal: Story = {
+// ── Stories ─────────────────────────────────────────────────────────────────
+// Every story renders the canonical Light Mode SideNav definition. The only
+// thing each story varies is the SURROUNDING SHELL (page bg, document area
+// scaffold, width, footer copy) — the Sidebar body grammar is identical.
+
+export const Default: Story = {
   render: () => (
     <div className="h-screen flex bg-canvas">
-      <Sidebar ariaLabel="Main navigation">
-        <SidebarRow title="Dashboard" active onSelect={() => console.log('dashboard')} />
-        <SidebarRow title="Orders"          onSelect={() => console.log('orders')} />
-        <SidebarRow title="Customers"       onSelect={() => console.log('customers')} />
-        <SidebarRow title="Products"        onSelect={() => console.log('products')} />
-        <SidebarRow title="Settings"        onSelect={() => console.log('settings')} />
-      </Sidebar>
-      <div className="flex-1 p-4 text-fg-secondary">
-        Minimal shell — no header, toolbar, or sections. Verifies Sidebar works as a thin list nav.
+      <LightModeSideNav />
+      <div className="flex-1 p-4 text-secondary">
+        Document area — Default story renders the canonical Light Mode SideNav definition.
       </div>
     </div>
   ),
 };
 
 export const LightTheme: Story = {
-  render: () => {
-    const [inProgress, setInProgress] = useState(true);
-    const [outstanding, setOutstanding] = useState(false);
-    return (
-      <div className="h-screen flex bg-canvas">
-        <Sidebar theme="light">
-          <SidebarHeader
-            title="Acme Corp · FY2025"
-            subtitle="Tax Return"
-            icon={<Briefcase01Icon size={16} />}
-            onBack={() => console.log('back')}
-          />
-          <SidebarToolbar>
-            <SidebarFilterChip
-              label="In Progress"
-              color="brand"
-              count={12}
-              active={inProgress}
-              onToggle={() => setInProgress((v) => !v)}
-            />
-            <SidebarFilterChip
-              label="Outstanding"
-              color="yellow"
-              count={4}
-              active={outstanding}
-              onToggle={() => setOutstanding((v) => !v)}
-            />
-          </SidebarToolbar>
-          <div className="flex-1 overflow-y-auto">
-            <SidebarSection title="Open Requests" count={4}>
-              <SampleRow index={1} title="Bank statements - Q3" subtitle="Due Dec 15 · Alex" status="in-progress" />
-              <SampleRow index={2} title="Payroll reconciliation" subtitle="Due Dec 20 · Sam"  status="todo" />
-              <SampleRow index={3} title="AR aging report"         subtitle="Due Dec 22 · Alex" status="overdue" />
-              <SampleRow index={4} title="Capex schedule review"   subtitle="Due Dec 28 · Riley" status="in-progress" />
-            </SidebarSection>
-          </div>
-        </Sidebar>
-        <div className="flex-1 p-4 text-fg-secondary">
-          theme=&ldquo;light&rdquo; — same shape as Default. Verifies tokens flip cleanly.
-        </div>
+  render: () => (
+    <div className="h-screen flex bg-canvas">
+      <LightModeSideNav theme="light" />
+      <div className="flex-1 p-4 text-secondary">
+        theme=&ldquo;light&rdquo; — explicit Light Mode definition. Same body grammar as Default.
       </div>
-    );
-  },
+    </div>
+  ),
 };
 
 export const ProductionReplica: Story = {
-  render: () => {
-    const [inProgress, setInProgress]   = useState(true);
-    const [outstanding, setOutstanding] = useState(false);
-    const [fulfilled, setFulfilled]     = useState(false);
-    const [overdue, setOverdue]         = useState(false);
-
-    const subMenu = (
-      <ActionMenu
-        size="sm"
-        groups={[
-          {
-            items: [
-              { label: 'Only mine',      onClick: () => console.log('only mine') },
-              { label: 'Due this week',  onClick: () => console.log('due this week') },
-              { label: 'Overdue',        onClick: () => console.log('overdue') },
-            ],
-          },
-        ]}
-      />
-    );
-
-    return (
-      <div className="h-screen flex bg-canvas">
-        <Sidebar theme="dark" width={320}>
-          <SidebarHeader
-            title="Acme Corp · FY2025"
-            subtitle="Tax Return"
-            icon={<Briefcase01Icon size={16} />}
-            onBack={() => console.log('back')}
-            actions={
-              <>
-                <IconButton label="Settings" onClick={() => console.log('settings')}>
-                  <Settings01Icon size={16} />
-                </IconButton>
-                <IconButton label="More actions" onClick={() => console.log('more')}>
-                  <DotsHorizontalIcon size={16} />
-                </IconButton>
-              </>
-            }
-          />
-
-          <SidebarToolbar>
-            <SidebarFilterChip
-              label="In Progress"
-              color="brand"
-              count={12}
-              active={inProgress}
-              onToggle={() => setInProgress((v) => !v)}
-              subMenu={subMenu}
-            />
-            <SidebarFilterChip
-              label="Outstanding"
-              color="yellow"
-              count={4}
-              active={outstanding}
-              onToggle={() => setOutstanding((v) => !v)}
-            />
-            <SidebarFilterChip
-              label="Fulfilled"
-              color="green"
-              count={18}
-              active={fulfilled}
-              onToggle={() => setFulfilled((v) => !v)}
-            />
-            <SidebarFilterChip
-              label="Overdue"
-              color="red"
-              count={2}
-              active={overdue}
-              onToggle={() => setOverdue((v) => !v)}
-            />
-          </SidebarToolbar>
-
-          <div className="flex-1 overflow-y-auto">
-            <SidebarSection title="Open Requests" count={12}>
-              <SampleRow
-                index={1}
-                title="Bank statements - Q3"
-                subtitle="Due Dec 15 · Assigned to Alex"
-                status="in-progress"
-                initials="AL"
-                trailing={<Badge variant="warning">3</Badge>}
-              />
-              <SampleRow
-                index={2}
-                title="Payroll reconciliation"
-                subtitle="Due Dec 20 · Assigned to Sam"
-                status="todo"
-                initials="SA"
-              />
-              <SampleRow
-                index={3}
-                title="AR aging report"
-                subtitle="Due Dec 22 · Assigned to Alex"
-                status="overdue"
-                initials="AL"
-                trailing={<Badge variant="brand">New</Badge>}
-              />
-              <SampleRow
-                index={4}
-                title="Capex schedule review"
-                subtitle="Due Dec 28 · Assigned to Riley"
-                status="in-progress"
-                initials="RI"
-              />
-              <SampleRow
-                index={5}
-                title="Fixed asset roll-forward"
-                subtitle="Due Jan 3 · Assigned to Morgan"
-                status="todo"
-                initials="MO"
-                trailing={<Badge variant="warning">5</Badge>}
-              />
-              <SampleRow
-                index={6}
-                title="Deferred revenue schedule"
-                subtitle="Due Jan 5 · Assigned to Alex"
-                status="in-progress"
-                initials="AL"
-                active
-              />
-              <SampleRow
-                index={7}
-                title="Inventory count confirmation"
-                subtitle="Due Jan 8 · Assigned to Sam"
-                status="overdue"
-                initials="SA"
-                trailing={<Badge variant="brand">2</Badge>}
-              />
-              <SampleRow
-                index={8}
-                title="Tax provision workpaper"
-                subtitle="Due Jan 12 · Assigned to Riley"
-                status="in-progress"
-                initials="RI"
-              />
-            </SidebarSection>
-
-            <SidebarSection title="Closed" count={4}>
-              <SampleRow
-                index={1}
-                title="Signed engagement letter"
-                subtitle="Completed Nov 12 · Alex"
-                status="done"
-                initials="AL"
-                trailing={<Badge variant="success">Done</Badge>}
-              />
-              <SampleRow
-                index={2}
-                title="Prior-year adjustments"
-                subtitle="Completed Nov 20 · Morgan"
-                status="done"
-                initials="MO"
-              />
-              <SampleRow
-                index={3}
-                title="Trial balance import"
-                subtitle="Completed Nov 28 · Sam"
-                status="done"
-                initials="SA"
-                trailing={<Badge variant="success">Done</Badge>}
-              />
-              <SampleRow
-                index={4}
-                title="Entity structure diagram"
-                subtitle="Completed Dec 2 · Riley"
-                status="done"
-                initials="RI"
-              />
-            </SidebarSection>
-          </div>
-
-          <div className="px-3 py-2 border-t border-sidenav-border flex items-center justify-between">
-            <span className="text-label-sm text-sidenav-fg-muted">36 total</span>
-            <span className="text-label-sm text-sidenav-fg-muted">FY2025</span>
-          </div>
-        </Sidebar>
-
-        <div className="flex-1 p-6 text-fg-secondary">
-          <div className="text-heading-md text-fg-primary mb-2">Request detail</div>
-          <p>ProductionReplica — full compound layout matches the app shell.</p>
-        </div>
+  render: () => (
+    <div className="h-screen flex bg-canvas">
+      <LightModeSideNav theme="light" width={320} />
+      <div className="flex-1 p-6 text-secondary">
+        <div className="text-heading-md text-primary mb-2">Request detail</div>
+        <p>ProductionReplica — full app shell with the canonical SideNav.</p>
       </div>
-    );
-  },
+    </div>
+  ),
+};
+
+export const Minimal: Story = {
+  render: () => (
+    <div className="h-screen flex bg-canvas">
+      <LightModeSideNav />
+    </div>
+  ),
+};
+
+// ─── Matrix — mirrors Figma SideNav ComponentSet (1147:213) ────────────────
+// 2 variants on `State` axis:
+//   State=Expanded  — 264 × 1039  — full Light Mode SideNav (header + toolbar
+//                                   + waterfall sections + footer)
+//   State=Collapsed — 64 × 1039   — icon-rail (back button + collapse toggle)
+// Both cells render the canonical `LightModeSideNav` body grammar — only
+// width and the rail-collapsed inner content differ. Cell (x, y, w, h) values
+// mirror Figma 76:50 / 1147:213 exactly.
+
+const SB_CELLS: MatrixCellSpec[] = [
+  { variant: 'State=Expanded',  x: 73,  y: 40, w: 264, h: 1039, expect: { headings: [] } },
+  { variant: 'State=Collapsed', x: 363, y: 40, w: 64,  h: 1039, expect: { headings: [] } },
+];
+
+// Square icon button that fits the 40×40 hit area of the collapsed rail
+const RailIconButton = ({
+  children,
+  label,
+}: {
+  children: React.ReactNode;
+  label: string;
+}) => (
+  <button
+    type="button"
+    aria-label={label}
+    className="h-10 w-10 inline-flex items-center justify-center rounded-control text-secondary hover:bg-surface hover:text-primary transition-colors"
+  >
+    {children}
+  </button>
+);
+
+function CollapsedSidebar() {
+  return (
+    <Sidebar theme="light" width={64} className="h-full">
+      <div className="flex flex-col items-center gap-1 p-2">
+        <RailIconButton label="Back">
+          <ArrowLeftIcon size="sm" />
+        </RailIconButton>
+        <RailIconButton label="Expand sidebar">
+          <ChevronLeftIcon size="sm" className="rotate-180" />
+        </RailIconButton>
+      </div>
+    </Sidebar>
+  );
+}
+
+const renderCell = (variant: string) => {
+  if (/State=Expanded/.test(variant))  return <LightModeSideNav />;
+  if (/State=Collapsed/.test(variant)) return <CollapsedSidebar />;
+  return null;
+};
+
+export const Matrix: Story = {
+  parameters: { layout: 'fullscreen', matrixSpec: { figmaPageId: '76:50', cells: SB_CELLS } },
+  decorators: [
+    MatrixVerify,
+    (Story) => <div className="bg-canvas min-w-fit p-12">{Story()}</div>,
+  ],
+  render: () => (
+    <div className="relative" style={{ width: 500, height: 1100 }}>
+      {SB_CELLS.map((c) => (
+        <div
+          key={c.variant}
+          className="absolute"
+          data-matrix-cell
+          style={{ left: c.x, top: c.y, width: c.w, height: c.h }}
+        >
+          {renderCell(c.variant)}
+        </div>
+      ))}
+    </div>
+  ),
 };

@@ -13,17 +13,17 @@ export function Pagination({ page, total, onChange, className }: PaginationProps
       <button
         onClick={() => onChange(page - 1)}
         disabled={page <= 1}
-        className="rounded-lg px-3 py-1.5 text-sm font-medium text-fg-secondary hover:bg-surface disabled:opacity-40"
+        className="rounded-card px-3 py-1.5 text-body-md font-medium text-secondary transition-colors hover:bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-line-focus disabled:opacity-40 disabled:pointer-events-none"
       >
         ‹ Prev
       </button>
-      <span className="px-3 py-1.5 text-sm text-fg-secondary">
+      <span className="px-3 py-1.5 text-body-md text-secondary">
         {page} / {total}
       </span>
       <button
         onClick={() => onChange(page + 1)}
         disabled={page >= total}
-        className="rounded-lg px-3 py-1.5 text-sm font-medium text-fg-secondary hover:bg-surface disabled:opacity-40"
+        className="rounded-card px-3 py-1.5 text-body-md font-medium text-secondary transition-colors hover:bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-line-focus disabled:opacity-40 disabled:pointer-events-none"
       >
         Next ›
       </button>
