@@ -1,6 +1,6 @@
 ---
 name: token-compliance-gate
-description: MANDATORY pre-write gate for every styling change. Auto-invoke before ANY edit to .tsx/.ts/.css files that touches className, style, or any visual property, and before ANY Figma write that creates/edits paints, padding, gap, radius, or dimensions. Blocks raw values that should be design tokens.
+description: MANDATORY pre-write gate for every styling change in the Suralink Last Samurai Design System (LSDS). Auto-invoke before ANY edit to .tsx/.ts/.css files that touches className, style, or any visual property, and before ANY Figma write that creates/edits paints, padding, gap, radius, or dimensions. Blocks raw hex (`#abc123`), arbitrary dimensions (`w-[280px]`, `text-[14px]`), Tailwind defaults (`text-sm`, `rounded-lg`, `bg-white`), and unbound Figma values. Pairs with the lsds-rapid-prototyping and figma-canonical-only skills as the third pillar of LSDS discipline — this one enforces token-binding, the other two enforce canonical-only composition and brief-first workflow.
 ---
 
 # Token Compliance Gate

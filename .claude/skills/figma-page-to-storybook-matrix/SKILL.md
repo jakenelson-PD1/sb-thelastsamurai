@@ -1,3 +1,8 @@
+---
+name: figma-page-to-storybook-matrix
+description: MANDATORY skill for building or modifying any pixel-perfect Matrix story in the Suralink LSDS Storybook (https://jake.nelson2.gitlab.io/sb-thelastsamurai) that mirrors a Figma page from file ZP0lSeT5Nwm1lpWI79qIaf. Forces full per-cell numeric verification — every Matrix cell's computed CSS must match the Figma variant's bindings (position, size, padding, radius, colors, typography) within documented tolerance before any "done" claim is allowed. Triggers on any task mentioning Matrix story, MatrixVerify, pixel-pin, source↔Figma parity, "build the matrix for X", or reconciling a Figma page with its Storybook story. Counting rendered cells is not evidence — only per-cell delta tables with green/yellow/red classifications close the work.
+---
+
 # Figma Page → Storybook Matrix (Pixel-Perfect)
 
 ## Why this skill exists

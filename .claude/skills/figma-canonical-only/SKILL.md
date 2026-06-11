@@ -1,6 +1,6 @@
 ---
 name: figma-canonical-only
-description: MANDATORY skill for ALL Figma work in this project. Forces composition entirely from canonical instances of existing design-system components. Blocks the creation of new ComponentSets, new Components, or new component properties unless TWO thorough design-system searches both return nothing AND the user has explicitly approved. Triggers on any task involving the Figma file `ZP0lSeT5Nwm1lpWI79qIaf` — building, editing, swapping, or refactoring any node, frame, instance, ComponentSet, or property.
+description: MANDATORY skill for ALL Figma work in the Suralink Last Samurai Design System (LSDS, Figma file `ZP0lSeT5Nwm1lpWI79qIaf`). Forces composition entirely from canonical instances of existing design-system components. Blocks the creation of new ComponentSets, new Components, or new component properties unless TWO thorough design-system searches both return nothing AND the user has explicitly approved. Triggers on any task involving that Figma file or its components — building, editing, swapping, or refactoring any node, frame, instance, ComponentSet, or property. Pairs with the lsds-rapid-prototyping skill — this one enforces canonical-only on the Figma side, that one on the JSX side.
 ---
 
 # Figma Canonical-Only Composition
