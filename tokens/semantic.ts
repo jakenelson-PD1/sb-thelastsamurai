@@ -85,6 +85,12 @@ export const semanticPlugin = plugin(
         '--color-border-strong':        colors.neutral[300],
         '--color-border-focus':         colors.brand[300],
         '--color-border-info-border':   colors.brand[200],
+        // For outlined UI elements sitting on always-dark surfaces (toasts,
+        // header/sidenav chrome). Deliberately mode-agnostic — the surface it
+        // renders on is always dark regardless of app theme, so the border
+        // stays a legible white overlay in both modes. Passes ~3.9:1 on
+        // #121215 (WCAG UI-component minimum is 3:1).
+        '--color-border-on-inverse':    'rgba(255,255,255,0.4)',
 
         // ── Action (interactive surfaces — button states + accents) ─
         '--color-action-primary-500':            colors.brand[500],
@@ -236,6 +242,7 @@ export const semanticPlugin = plugin(
         '--color-border-strong':        '#262630',
         '--color-border-focus':         colors.brand[200],
         '--color-border-info-border':   '#1e3d6e',
+        '--color-border-on-inverse':    'rgba(255,255,255,0.4)',
 
         // ── Action ──────────────────────────────────────────────────
         '--color-action-primary-500':                 '#6098e0',
@@ -363,6 +370,7 @@ export const semanticPlugin = plugin(
           'line':              'var(--color-border-default)',
           'line-strong':       'var(--color-border-strong)',
           'line-focus':        'var(--color-border-focus)',
+          'line-on-inverse':   'var(--color-border-on-inverse)',
 
           // ── Action (canonical brand-primary) ────────────────────────
           // action-primary is the single source-of-truth for "brand blue
